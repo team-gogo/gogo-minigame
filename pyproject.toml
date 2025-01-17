@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "gogo-minigame"
+version = "0.1.0"
+description = ""
+authors = ["Jueuunn7 <wndmsrla1234@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.13"
+django = "^5.1.5"
+djangorestframework = "^3.15.2"
+py-eureka-client = "^0.11.13"
+psycopg2-binary = "^2.9.10"
+pytest-django = "^4.9.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
