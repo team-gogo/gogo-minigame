@@ -30,12 +30,11 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     # Add-on
-    "rest_framework",
+    'ninja_extra'
     # Apps
 ]
 
 MIDDLEWARE = [
-    "core.middlewares.MiniGamePathPrefixMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -43,7 +42,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "core.middlewares.HealthCheckMiddleware",
+    "core.infra.middlewares.HealthCheckMiddleware",  # health-check middleware
 ]
 
 REST_FRAMEWORK = {
@@ -60,7 +59,7 @@ eureka_client.init(
     instance_port=8086
 )
 
-ROOT_URLCONF = "core.urls"
+ROOT_URLCONF = "core.presentation.api"
 
 TEMPLATES = [
     {
@@ -78,7 +77,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "core.wsgi.application"
+ASGI_APPLICATION = "core.infra.asgi.application"
 
 
 # Database
