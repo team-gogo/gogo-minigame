@@ -1,9 +1,8 @@
-from rest_framework.test import APIClient
-
+from django.test import Client
 
 def test_health():
-    client = APIClient()
-    url = '/health'
+    client = Client()
+    url = '/minigame/health'
 
     response = client.get(url)
 
