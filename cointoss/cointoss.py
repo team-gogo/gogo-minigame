@@ -33,6 +33,8 @@ async def bet(headers, stage_id, data):
         # 유저 포인트 정보 가져오기
         # TODO: do_service 명세에 맞게 수정 필요
         response = await do_service_async('gogo-stage', f'path?stage_id={stage_id}&user_id={user_id}')
+        if not response:
+            raise HTTPException(code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail='gogo-stage no response')
         before_point = response.json()['amount']
 
         # 포인트 검사
