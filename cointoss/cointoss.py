@@ -51,7 +51,7 @@ async def bet(headers, stage_id, data):
         play = Play(
             minigame_id=minigame.id,
             student_id=user_id,
-            timestemp=str(datetime.now()),
+            timestamp=str(datetime.now()),
             bet_point=amount,
             point=after_point
         )
