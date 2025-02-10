@@ -1,1 +1,1 @@
-from .cointoss import bet
+from .cointoss import coin_toss_bet

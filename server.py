@@ -4,7 +4,7 @@ from starlette.websockets import WebSocket
 
 from db import create_db
 from eureka import init_eureka
-from cointoss import bet
+from cointoss import coin_toss_bet
 
 app = FastAPI()
 
@@ -22,7 +22,7 @@ async def coin_toss(websocket: WebSocket, stage_id: int):
         data = await websocket.receive_json()
 
         try:
-            result = await bet(headers=headers, stage_id=stage_id, data=data)
+            result = await coin_toss_bet(headers=headers, stage_id=stage_id, data=data)
         except Exception as e:
             result = {'error': str(e)}
 

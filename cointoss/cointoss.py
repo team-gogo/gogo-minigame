@@ -12,7 +12,7 @@ from model.play import Play
 from model.minigame import Minigame
 
 
-async def bet(headers, stage_id, data):
+async def coin_toss_bet(headers, stage_id, data):
     user_id = headers['user_id']
     authority = headers['authority']
     bet_amount = data['amount']
