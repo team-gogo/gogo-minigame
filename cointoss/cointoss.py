@@ -31,6 +31,7 @@ async def bet(headers, stage_id, data):
             raise HTTPException(code=status.HTTP_404_NOT_FOUND, detail='Minigame not found')
 
         # 유저 포인트 정보 가져오기
+        # TODO: do_service 명세에 맞게 수정 필요
         response = await do_service_async('gogo-stage', f'path?stage_id={stage_id}&user_id={user_id}')
         before_point = response.json()['amount']
 
@@ -39,10 +40,10 @@ async def bet(headers, stage_id, data):
             raise HTTPException(code=status.HTTP_400_BAD_REQUEST)
 
         if result := random.choice([True, False]):
-            send_message('increase_point', amount)
+            send_message('increase_point', amount)  # TODO: kafka 토픽, 메시지 변경
             after_point = before_point + amount
         else:
-            send_message('decrease_point', amount)
+            send_message('decrease_point', amount)  # TODO: kafka 토픽, 메시지 변경
             after_point = before_point - amount
 
         play = Play(
