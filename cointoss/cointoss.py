@@ -15,7 +15,7 @@ from model.minigame import Minigame
 async def bet(headers, stage_id, data):
     user_id = headers['user_id']
     authority = headers['authority']
-    amount = data['amount']
+    bet_amount = data['amount']
 
     if not user_id:
         raise HTTPException(code=status.HTTP_401_UNAUTHORIZED)
@@ -38,21 +38,21 @@ async def bet(headers, stage_id, data):
         before_point = response.json()['amount']
 
         # 포인트 검사
-        if amount > before_point:
+        if bet_amount > before_point:
             raise HTTPException(code=status.HTTP_400_BAD_REQUEST)
 
         if result := random.choice([True, False]):
-            send_message('increase_point', amount)  # TODO: kafka 토픽, 메시지 변경
-            after_point = before_point + amount
+            send_message('increase_point', bet_amount)  # TODO: kafka 토픽, 메시지 변경
+            after_point = before_point + bet_amount
         else:
-            send_message('decrease_point', amount)  # TODO: kafka 토픽, 메시지 변경
-            after_point = before_point - amount
+            send_message('decrease_point', bet_amount)  # TODO: kafka 토픽, 메시지 변경
+            after_point = before_point - bet_amount
 
         play = Play(
             minigame_id=minigame.id,
             student_id=user_id,
             timestamp=str(datetime.now()),
-            bet_point=amount,
+            bet_point=bet_amount,
             point=after_point
         )
 
