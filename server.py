@@ -1,8 +1,9 @@
 import asyncio
 
 import uvicorn
-from fastapi import FastAPI
+from fastapi import FastAPI, WebSocketDisconnect
 from starlette.websockets import WebSocket
+from websockets import ConnectionClosed
 
 from db import create_db
 from eureka import init_eureka
@@ -24,10 +25,12 @@ async def coin_toss(websocket: WebSocket, stage_id: int):
             data = await websocket.receive_json()
             result = await coin_toss_bet(headers=websocket.headers, stage_id=stage_id, data=data)
             await websocket.send_json(result)
+        except (WebSocketDisconnect, ConnectionClosed):
+            break
         except Exception as e:
-            result = {'error': str(e)}
-        finally:
-            await websocket.send_json(result)
+            await websocket.send_json({'error': str(e)})
+            await websocket.close()
+            break
 
 
 @app.websocket('/minigame/plinko/{stage_id}')
@@ -38,16 +41,18 @@ async def plinko(websocket: WebSocket, stage_id: int):
             data = await websocket.receive_json()
             result = await plinko_bet(headers=websocket.headers, stage_id=stage_id, data=data)
             await websocket.send_json(result)
+        except (WebSocketDisconnect, ConnectionClosed):
+            break
         except Exception as e:
-            result = {'error': str(e)}
-        finally:
-            await websocket.send_json(result)
+            await websocket.send_json({'error': str(e)})
+            await websocket.close()
+            break
 
 
 if __name__ == '__main__':
     try:
-        init_eureka()
-        create_db()
+        asyncio.run(init_eureka())
+        asyncio.run(create_db())
         uvicorn.run(app, host='0.0.0.0', port=8086)
     except Exception as e:
         print(e)
