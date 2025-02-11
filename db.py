@@ -10,5 +10,5 @@ engine = create_async_engine(DB, echo=True)
 
 
 async def create_db():
-    async with engine.begin() as session:
+    with engine.begin() as session:
         await session.run_sync(SQLModel.metadata.create_all)

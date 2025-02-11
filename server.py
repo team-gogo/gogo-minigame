@@ -1,3 +1,5 @@
+import asyncio
+
 import uvicorn
 from fastapi import FastAPI
 from starlette.websockets import WebSocket
@@ -41,10 +43,12 @@ async def plinko(websocket: WebSocket, stage_id: int):
         finally:
             await websocket.send_json(result)
 
+
 if __name__ == '__main__':
     try:
-        create_db()
         init_eureka()
+        create_db()
         uvicorn.run(app, host='0.0.0.0', port=8086)
     except Exception as e:
+        print(e)
         exit(1)

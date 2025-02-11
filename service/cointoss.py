@@ -52,6 +52,7 @@ async def coin_toss_bet(headers, stage_id, data):
                 student_id=user_id,
                 timestamp=str(datetime.now()),
                 bet_point=bet_amount,
+                coin_toss_result=result,
                 point=after_point
             )
             session.add(play)
