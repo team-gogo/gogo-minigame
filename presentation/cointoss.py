@@ -1,19 +1,20 @@
-from fastapi import APIRouter, WebSocketDisconnect, WebSocket, HTTPException, status, Depends
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect, HTTPException, status, Depends
 from sqlmodel.ext.asyncio.session import AsyncSession
 from websockets import ConnectionClosed
 
-from service.plinko import PlinkoService
 from db import get_session
+from service.cointoss import CoinTossService
 
-router = APIRouter(prefix='/minigame/plinko')
+router = APIRouter(prefix='/minigame/coin-toss')
 
 
 @router.websocket('/{stage_id}')
-async def plinko(
+async def coin_toss(
         stage_id: int,
         websocket: WebSocket,
         session: AsyncSession = Depends(get_session)
 ):
+
     headers = websocket.headers
 
     user_id = headers['user_id']
@@ -30,7 +31,7 @@ async def plinko(
     while True:
         try:
             data = await websocket.receive_json()
-            result = await PlinkoService(session).bet(stage_id=stage_id, user_id=user_id, data=data)
+            result = await CoinTossService(session).bet(stage_id=stage_id, user_id=user_id, data=data)
             await websocket.send_json(result)
 
         except (WebSocketDisconnect, ConnectionClosed):

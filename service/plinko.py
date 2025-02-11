@@ -3,10 +3,10 @@ from datetime import datetime
 
 from fastapi import HTTPException, status
 from py_eureka_client.eureka_client import do_service_async
+from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from db import engine
-from domain import find_minigame_by_stage_id, Play
+from domain import Play, Minigame
 from producer import send_message
 
 PLINKO_RISK_VALUE = {
@@ -16,21 +16,17 @@ PLINKO_RISK_VALUE = {
 }
 
 
-async def plinko_bet(headers, stage_id, data):
-    user_id = headers['user_id']
-    authority = headers['authority']
-    bet_amount = data['amount']
+class PlinkoService:
+    def __init__(self, session: AsyncSession):
+        self.session = session
 
-    if not user_id:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+    async def bet(self, stage_id, user_id, data):
+        bet_amount = data['amount']
 
-    if authority != 'STUDENT':
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
-
-    async with AsyncSession(engine) as session:
-        async with session.begin():
+        async with self.session.begin():
             # stage_id로 미니게임 조회
-            minigame = await find_minigame_by_stage_id(session, stage_id)
+            minigame_select = select(Minigame).where(Minigame.stage_id == stage_id)
+            minigame = await self.session.exec(minigame_select)
             if not minigame:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Minigame not found')
 
@@ -69,7 +65,7 @@ async def plinko_bet(headers, stage_id, data):
                 point=plinko_point,
                 plinko_result=result
             )
-            session.add(play)
+            self.session.add(play)
 
             return {
                 'amount': after_amount,

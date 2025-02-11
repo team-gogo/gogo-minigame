@@ -1,1 +1,0 @@
-from .cointoss import coin_toss_bet

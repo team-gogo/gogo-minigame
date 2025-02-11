@@ -5,8 +5,8 @@ from config import EUREKA_HOST, EUREKA_PORT, EUREKA_SERVICE_NAME, INSTANCE_PORT
 EUREKA_SERVER = f'http://{EUREKA_HOST}:{EUREKA_PORT}'
 
 
-async def init_eureka():
-    await eureka_client.init_async(
+def init_eureka():
+    eureka_client.init(
         eureka_server=EUREKA_SERVER,
         app_name=EUREKA_SERVICE_NAME,
         instance_port=INSTANCE_PORT
