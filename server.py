@@ -4,7 +4,7 @@ from starlette.websockets import WebSocket
 
 from db import create_db
 from eureka import init_eureka
-from cointoss import coin_toss_bet
+from service import coin_toss_bet
 
 app = FastAPI()
 

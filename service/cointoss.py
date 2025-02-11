@@ -7,8 +7,8 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 
 from producer import send_message
 from db import engine
-from minigame.domain.minigame_repo import find_minigame_by_stage_id
-from minigame.domain.play import Play
+from domain import find_minigame_by_stage_id
+from domain import Play
 
 
 async def coin_toss_bet(headers, stage_id, data):
