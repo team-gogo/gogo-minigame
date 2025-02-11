@@ -22,7 +22,7 @@ async def coin_toss_bet(headers, stage_id, data):
     if authority != 'STUDENT':
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
 
-    async with (AsyncSession(engine) as session):
+    async with AsyncSession(engine) as session:
         async with session.begin():
             # stage_id로 미니게임 조회
             minigame = await find_minigame_by_stage_id(session, stage_id)
