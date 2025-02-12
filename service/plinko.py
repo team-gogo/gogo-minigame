@@ -7,6 +7,7 @@ from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from domain import Play, Minigame
+from domain.model.plinko import PlinkoBetRes
 from producer import send_message
 
 PLINKO_RISK_VALUE = {
@@ -67,7 +68,9 @@ class PlinkoService:
             )
             self.session.add(play)
 
-            return {
-                'amount': after_amount,
-                'path': [p for p in path]
-            }
+            return PlinkoBetRes(
+                amount=bet_amount,
+                path=[p for p in path],
+            )
+
+

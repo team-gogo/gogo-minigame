@@ -1,4 +1,7 @@
+from typing import Annotated
+
 from fastapi import APIRouter, WebSocketDisconnect, WebSocket, HTTPException, status, Depends
+from fastapi.params import Header
 from sqlmodel.ext.asyncio.session import AsyncSession
 from websockets import ConnectionClosed
 
@@ -12,15 +15,10 @@ router = APIRouter(prefix='/minigame/plinko')
 async def plinko(
         stage_id: int,
         websocket: WebSocket,
-        session: AsyncSession = Depends(get_session)
+        user_id: Annotated[str, Header()] = None,
+        authority: Annotated[str, Header()] = None,
+        session: Annotated[AsyncSession, Depends(get_session)] = None,
 ):
-    headers = websocket.headers
-
-    user_id = headers['user_id']
-    authority = headers['authority']
-
-    if not user_id:
-        raise websocket.close(code=status.WS_1008_POLICY_VIOLATION)
 
     if authority != 'STUDENT':
         raise websocket.close(code=status.WS_1008_POLICY_VIOLATION)
