@@ -6,6 +6,7 @@ from py_eureka_client.eureka_client import do_service_async
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
+from domain.model.cointoss import CoinTossBetRes
 from producer import send_message
 from domain import Play, Minigame
 
@@ -52,7 +53,7 @@ class CoinTossService:
             )
             self.session.add(play)
 
-            return {
-                'result': result,
-                'amount': after_point
-            }
+            return CoinTossBetRes(
+                result=result,
+                amount=after_point
+            )

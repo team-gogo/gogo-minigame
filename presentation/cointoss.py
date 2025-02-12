@@ -1,4 +1,8 @@
+from typing import Annotated
+
+from django.contrib.auth import authenticate
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, HTTPException, status, Depends
+from fastapi.params import Header
 from sqlmodel.ext.asyncio.session import AsyncSession
 from websockets import ConnectionClosed
 
@@ -12,19 +16,13 @@ router = APIRouter(prefix='/minigame/coin-toss')
 async def coin_toss(
         stage_id: int,
         websocket: WebSocket,
-        session: AsyncSession = Depends(get_session)
+        user_id: Annotated[str, Header()] = None,
+        authority: Annotated[str, Header()] = None,
+        session: Annotated[AsyncSession, Depends(get_session)] = None,
 ):
 
-    headers = websocket.headers
-
-    user_id = headers['user_id']
-    authority = headers['authority']
-
-    if not user_id:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
-
     if authority != 'STUDENT':
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
+        raise websocket.close(code=status.WS_1008_POLICY_VIOLATION)
 
     await websocket.accept()
 
