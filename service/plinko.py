@@ -51,7 +51,7 @@ class PlinkoService:
             result = row[8 + (move // 2)]
 
             # 배팅후 포인트 계산
-            plinko_point =+ bet_amount * result
+            plinko_point = bet_amount * result
             after_amount = before_point + -bet_amount + plinko_point
 
             # TODO: 명세에 맞게 변경 필요
