@@ -14,17 +14,16 @@ async def coin_toss(
         websocket: WebSocket,
         session: AsyncSession = Depends(get_session)
 ):
-
     headers = websocket.headers
 
     user_id = headers['user_id']
     authority = headers['authority']
 
     if not user_id:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+        raise websocket.close(code=status.WS_1008_POLICY_VIOLATION)
 
     if authority != 'STUDENT':
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
+        raise websocket.close(code=status.WS_1008_POLICY_VIOLATION)
 
     await websocket.accept()
 
