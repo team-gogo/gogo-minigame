@@ -1,1 +1,0 @@
-from .cointoss import bet

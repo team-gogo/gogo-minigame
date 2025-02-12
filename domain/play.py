@@ -10,7 +10,8 @@ class Play(SQLModel, table=True):
     timestamp: str
     bet_point: int
     yavarwee_stage: int
-    plinko_point: int
+    plinko_result: float
+    coin_toss_result: bool
     point: int
 
     __tablename__ = 'tbl_minigame_play'
