@@ -33,11 +33,10 @@ class PlinkoService:
                 raise WebSocketException(code=status.WS_1011_INTERNAL_ERROR, reason='Minigame not found')
 
             # 유저 포인트 정보 가져오기
-            # TODO: do_service 명세에 맞게 수정 필요
             response = await do_service_async('gogo-stage', f'/point/{stage_id}?studentId={user_id}')
             if not response:
                 raise WebSocketException(code=status.WS_1011_INTERNAL_ERROR, reason='gogo-stage no response')
-            before_point = response.json()['amount']
+            before_point = response.json()['point']
 
             # 포인트 검사
             if bet_amount > before_point:
