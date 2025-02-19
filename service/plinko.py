@@ -1,10 +1,11 @@
 import random
 from datetime import datetime
 
-from fastapi import HTTPException, status
+from fastapi import status
 from py_eureka_client.eureka_client import do_service_async
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
+from starlette.exceptions import WebSocketException
 
 from domain import Play, Minigame
 from domain.model.plinko import PlinkoBetRes
@@ -29,18 +30,18 @@ class PlinkoService:
             minigame_select = select(Minigame).where(Minigame.stage_id == stage_id)
             minigame = await self.session.exec(minigame_select)
             if not minigame:
-                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Minigame not found')
+                raise WebSocketException(code=status.WS_1011_INTERNAL_ERROR, reason='Minigame not found')
 
             # 유저 포인트 정보 가져오기
             # TODO: do_service 명세에 맞게 수정 필요
-            response = await do_service_async('gogo-stage', f'path?stage_id={stage_id}&user_id={user_id}')
+            response = await do_service_async('gogo-stage', f'/point/{stage_id}?studentId={user_id}')
             if not response:
-                raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail='gogo-stage no response')
+                raise WebSocketException(code=status.WS_1011_INTERNAL_ERROR, reason='gogo-stage no response')
             before_point = response.json()['amount']
 
             # 포인트 검사
             if bet_amount > before_point:
-                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
+                raise WebSocketException(code=status.WS_1011_INTERNAL_ERROR, reason='bet amount too high')
 
             # plinko 로직
             row = PLINKO_RISK_VALUE[data.risk]
