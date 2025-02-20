@@ -7,6 +7,7 @@ from db import create_db
 from eureka import init_eureka
 from presentation.cointoss import router as coin_toss_router
 from presentation.plinko import router as plinko_router
+
 app = FastAPI()
 
 
