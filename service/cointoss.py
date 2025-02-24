@@ -1,27 +1,30 @@
 import random
 from datetime import datetime
 
-from fastapi import status, HTTPException, WebSocketException
+from fastapi import status, WebSocketException
 from py_eureka_client.eureka_client import do_service_async
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from domain.model.cointoss import CoinTossBetRes
+from domain.repository.minigame import MinigameRepository
+from domain.repository.play import PlayRepository
+from presentation.schema.cointoss import CoinTossBetRes
 from producer import send_message
-from domain import Play, Minigame
+from domain.model.play import Play
+from domain.model.minigame import Minigame
 
 
 class CoinTossService:
     def __init__(self, session: AsyncSession):
-        self.session = session
+        self.minigame_repository = MinigameRepository(session)
+        self.play_repository = PlayRepository(session)
 
     async def bet(self, stage_id, user_id, data):
         bet_amount = data['amount']
 
         async with self.session.begin():
             # stage_id로 미니게임 조회
-            minigame_select = select(Minigame).where(Minigame.stage_id == stage_id)
-            minigame = await self.session.exec(minigame_select)
+            minigame = await self.minigame_repository.find_by_stage_id(stage_id)
             if not minigame:
                 raise WebSocketException(code=status.WS_1011_INTERNAL_ERROR, reason='Minigame not found')
 
@@ -42,15 +45,16 @@ class CoinTossService:
                 send_message('decrease_point', bet_amount)  # TODO: kafka 토픽, 메시지 변경
                 after_point = before_point - bet_amount
 
-            play = Play(
-                minigame_id=minigame.id,
-                student_id=user_id,
-                timestamp=str(datetime.now()),
-                bet_point=bet_amount,
-                coin_toss_result=result,
-                point=after_point
+            await self.play_repository.save(
+                Play(
+                    minigame_id=minigame.id,
+                    student_id=user_id,
+                    timestamp=str(datetime.now()),
+                    bet_point=bet_amount,
+                    coin_toss_result=result,
+                    point=after_point
+                )
             )
-            self.session.add(play)
 
             return CoinTossBetRes(
                 result=result,
