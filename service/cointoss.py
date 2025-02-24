@@ -3,7 +3,6 @@ from datetime import datetime
 
 from fastapi import status, WebSocketException
 from py_eureka_client.eureka_client import do_service_async
-from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from domain.repository.minigame import MinigameRepository
@@ -11,7 +10,6 @@ from domain.repository.play import PlayRepository
 from presentation.schema.cointoss import CoinTossBetRes
 from producer import send_message
 from domain.model.play import Play
-from domain.model.minigame import Minigame
 
 
 class CoinTossService:
