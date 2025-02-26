@@ -1,14 +1,14 @@
 import random
-from datetime import datetime
+import time
 
 from fastapi import status
 from py_eureka_client.eureka_client import do_service_async
 from sqlmodel.ext.asyncio.session import AsyncSession
 from starlette.exceptions import WebSocketException
 
-from domain.model.play import Play
+from domain.model.plinko_result import PlinkoResult
 from domain.repository.minigame import MinigameRepository
-from domain.repository.play import PlayRepository
+from domain.repository.plinko import PlinkoResultRepository
 from presentation.schema.plinko import PlinkoBetRes
 from producer import send_message
 
@@ -22,7 +22,7 @@ PLINKO_RISK_VALUE = {
 class PlinkoService:
     def __init__(self, session: AsyncSession):
         self.minigame_repository = MinigameRepository(session)
-        self.play_repository = PlayRepository(session)
+        self.plinko_result_repository = PlinkoResultRepository(session)
 
     async def bet(self, stage_id, user_id, data):
         bet_amount = data['amount']
@@ -58,14 +58,14 @@ class PlinkoService:
         # TODO: 명세에 맞게 변경 필요
         send_message('point', after_amount)
 
-        await self.play_repository.save(
-            Play(
+        await self.plinko_result_repository.save(
+            PlinkoResult(
                 minigame_id=minigame.id,
                 student_id=user_id,
-                timestamp=str(datetime.now()),
+                timestamp=int(time.time()),
                 bet_point=bet_amount,
                 point=plinko_point,
-                plinko_result=result
+                result=result
             )
         )
 
