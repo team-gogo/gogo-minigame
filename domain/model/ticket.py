@@ -10,3 +10,5 @@ class Ticket(SQLModel, table=True):
     coin_toss_ticket_amount: int
     plinko_ticket_amount: int
     yavarwee_ticket_amount: int
+
+    __tablename__ = 'tbl_minigame_ticket'
