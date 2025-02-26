@@ -1,9 +1,9 @@
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from domain.model.coin_toss import CoinTossResult
+from domain.model.coin_toss_result import CoinTossResult
 
 
-class CoinTossRepository:
+class CoinTossResultRepository:
     def __init__(self, session: AsyncSession):
         self.session = session
 

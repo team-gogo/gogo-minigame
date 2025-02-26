@@ -3,7 +3,7 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from domain.model.plinko_result import PlinkoResult
 
 
-class PlinkoRepository:
+class PlinkoResultRepository:
     def __init__(self, session: AsyncSession):
         self.session = session
 

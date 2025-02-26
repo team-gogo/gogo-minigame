@@ -1,21 +1,21 @@
 import random
-from datetime import datetime
+import time
 
 from fastapi import status, WebSocketException
 from py_eureka_client.eureka_client import do_service_async
 from sqlmodel.ext.asyncio.session import AsyncSession
 
+from domain.model.coin_toss_result import CoinTossResult
+from domain.repository.coin_toss import CoinTossResultRepository
 from domain.repository.minigame import MinigameRepository
-from domain.repository.play import PlayRepository
 from presentation.schema.cointoss import CoinTossBetRes
 from producer import send_message
-from domain.model.play import Play
 
 
 class CoinTossService:
     def __init__(self, session: AsyncSession):
         self.minigame_repository = MinigameRepository(session)
-        self.play_repository = PlayRepository(session)
+        self.coin_toss_result_repository = CoinTossResultRepository(session)
 
     async def bet(self, stage_id, user_id, data):
         bet_amount = data['amount']
@@ -43,13 +43,13 @@ class CoinTossService:
                 send_message('decrease_point', bet_amount)  # TODO: kafka 토픽, 메시지 변경
                 after_point = before_point - bet_amount
 
-            await self.play_repository.save(
-                Play(
+            await self.coin_toss_result_repository.save(
+                CoinTossResult(
                     minigame_id=minigame.id,
                     student_id=user_id,
-                    timestamp=str(datetime.now()),
+                    timestamp=int(time.time()),
                     bet_point=bet_amount,
-                    coin_toss_result=result,
+                    result=result,
                     point=after_point
                 )
             )
