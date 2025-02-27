@@ -1,3 +1,4 @@
+import json
 import random
 import time
 
@@ -36,19 +37,20 @@ class PlinkoService:
         response = await do_service_async('gogo-stage', f'/stage/api/point/{stage_id}?studentId={user_id}')
         if not response:
             raise WebSocketException(code=status.WS_1011_INTERNAL_ERROR, reason='gogo-stage no response')
-        before_point = response.json()['point']
+        before_point = json.loads(response)['point']
 
         # 포인트 검사
         if bet_amount > before_point:
             raise WebSocketException(code=status.WS_1011_INTERNAL_ERROR, reason='bet amount too high')
 
         # plinko 로직
-        row = PLINKO_RISK_VALUE[data.risk]
+        row = PLINKO_RISK_VALUE[data['risk']]
         move = 0
         path = []
-        for _ in range(16):
-            path += random.choice([-1, 1])
-            move += path
+        for i in range(16):
+            step = random.choice([-1, 1])
+            path.append(step)
+            move += step
         result = row[8 + (move // 2)]
 
         # 배팅후 포인트 계산
@@ -60,7 +62,7 @@ class PlinkoService:
 
         await self.plinko_result_repository.save(
             PlinkoResult(
-                minigame_id=minigame.id,
+                minigame_id=minigame.minigame_id,
                 student_id=user_id,
                 timestamp=int(time.time()),
                 bet_point=bet_amount,
@@ -71,5 +73,5 @@ class PlinkoService:
 
         return PlinkoBetRes(
             amount=bet_amount,
-            path=[p for p in path],
-        )
+            path=['L' if p==-1 else 'R' for p in path],
+        ).dict()

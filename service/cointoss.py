@@ -1,3 +1,4 @@
+import json
 import random
 import time
 
@@ -29,7 +30,7 @@ class CoinTossService:
         response = await do_service_async('gogo-stage', f'/stage/api/point/{stage_id}?studentId={user_id}')
         if not response:
             raise WebSocketException(code=status.WS_1011_INTERNAL_ERROR, reason='gogo-stage no response')
-        before_point = response.json()['point']
+        before_point = json.loads(response)['point']
 
         # 포인트 검사
         if bet_amount > before_point:
@@ -44,7 +45,7 @@ class CoinTossService:
 
         await self.coin_toss_result_repository.save(
             CoinTossResult(
-                minigame_id=minigame.id,
+                minigame_id=minigame.minigame_id,
                 student_id=user_id,
                 timestamp=int(time.time()),
                 bet_point=bet_amount,
@@ -56,4 +57,4 @@ class CoinTossService:
         return CoinTossBetRes(
             result=result,
             amount=after_point
-        )
+        ).dict()
