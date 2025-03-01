@@ -22,56 +22,58 @@ PLINKO_RISK_VALUE = {
 
 class PlinkoService:
     def __init__(self, session: AsyncSession):
+        self.session = session
         self.minigame_repository = MinigameRepository(session)
         self.plinko_result_repository = PlinkoResultRepository(session)
 
     async def bet(self, stage_id, user_id, data):
-        bet_amount = data['amount']
+        async with self.session.begin():
+            bet_amount = data['amount']
 
-        # stage_id로 미니게임 조회
-        minigame = await self.minigame_repository.find_by_stage_id(stage_id)
-        if not minigame:
-            raise WebSocketException(code=status.WS_1011_INTERNAL_ERROR, reason='Minigame not found')
+            # stage_id로 미니게임 조회
+            minigame = await self.minigame_repository.find_by_stage_id(stage_id)
+            if not minigame:
+                raise WebSocketException(code=status.WS_1011_INTERNAL_ERROR, reason='Minigame not found')
 
-        # 유저 포인트 정보 가져오기
-        response = await do_service_async('gogo-stage', f'/stage/api/point/{stage_id}?studentId={user_id}')
-        if not response:
-            raise WebSocketException(code=status.WS_1011_INTERNAL_ERROR, reason='gogo-stage no response')
-        before_point = json.loads(response)['point']
+            # 유저 포인트 정보 가져오기
+            response = await do_service_async('gogo-stage', f'/stage/api/point/{stage_id}?studentId={user_id}')
+            if not response:
+                raise WebSocketException(code=status.WS_1011_INTERNAL_ERROR, reason='gogo-stage no response')
+            before_point = json.loads(response)['point']
 
-        # 포인트 검사
-        if bet_amount > before_point:
-            raise WebSocketException(code=status.WS_1011_INTERNAL_ERROR, reason='bet amount too high')
+            # 포인트 검사
+            if bet_amount > before_point:
+                raise WebSocketException(code=status.WS_1011_INTERNAL_ERROR, reason='bet amount too high')
 
-        # plinko 로직
-        row = PLINKO_RISK_VALUE[data['risk']]
-        move = 0
-        path = []
-        for i in range(16):
-            step = random.choice([-1, 1])
-            path.append(step)
-            move += step
-        result = row[8 + (move // 2)]
+            # plinko 로직
+            row = PLINKO_RISK_VALUE[data['risk']]
+            move = 0
+            path = []
+            for i in range(16):
+                step = random.choice([-1, 1])
+                path.append(step)
+                move += step
+            result = row[8 + (move // 2)]
 
-        # 배팅후 포인트 계산
-        plinko_point = bet_amount * result
-        after_amount = before_point + -bet_amount + plinko_point
+            # 배팅후 포인트 계산
+            plinko_point = bet_amount * result
+            after_amount = before_point + -bet_amount + plinko_point
 
-        # TODO: 명세에 맞게 변경 필요
-        send_message('point', after_amount)
+            # TODO: 명세에 맞게 변경 필요
+            send_message('point', after_amount)
 
-        await self.plinko_result_repository.save(
-            PlinkoResult(
-                minigame_id=minigame.minigame_id,
-                student_id=user_id,
-                timestamp=int(time.time()),
-                bet_point=bet_amount,
-                point=plinko_point,
-                result=result
+            await self.plinko_result_repository.save(
+                PlinkoResult(
+                    minigame_id=int(minigame.minigame_id),
+                    student_id=int(user_id),
+                    timestamp=int(time.time()),
+                    bet_point=bet_amount,
+                    point=plinko_point,
+                    result=result
+                )
             )
-        )
 
-        return PlinkoBetRes(
-            amount=bet_amount,
-            path=['L' if p==-1 else 'R' for p in path],
-        ).dict()
+            return PlinkoBetRes(
+                amount=result,
+                path=['L' if p==-1 else 'R' for p in path],
+            ).dict()

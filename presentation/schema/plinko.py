@@ -4,5 +4,5 @@ from pydantic import BaseModel
 
 
 class PlinkoBetRes(BaseModel):
-    amount: int
+    amount: float
     path: List[str]
