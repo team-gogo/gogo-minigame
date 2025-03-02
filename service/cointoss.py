@@ -41,7 +41,7 @@ class CoinTossService:
                 raise WebSocketException(code=status.WS_1011_INTERNAL_ERROR, reason='bet amount too high')
 
             # 티켓 검사
-            ticket = await self.ticket_repository.find_by_minigame_id_and_user_id(minigame.minigame_id, user_id)
+            ticket = await self.ticket_repository.find_by_minigame_id_and_user_id_for_update(minigame.minigame_id, user_id)
             if ticket is None or ticket.coin_toss_ticket_amount <= 0:
                 raise WebSocketException(code=status.WS_1011_INTERNAL_ERROR, reason='Not enough ticket')
 
