@@ -35,7 +35,7 @@ class PlinkoService:
             # stage_id로 미니게임 조회
             minigame = await self.minigame_repository.find_by_stage_id(stage_id)
             if not minigame:
-                raise WebSocketException(code=status.WS_1011_INTERNAL_ERROR, reason='Minigame not found')
+                raise WebSocketException(code=status.WS_1008_POLICY_VIOLATION, reason='Minigame not found')
 
             # 유저 포인트 정보 가져오기
             response = await do_service_async('gogo-stage', f'/stage/api/point/{stage_id}?studentId={user_id}')
@@ -45,12 +45,12 @@ class PlinkoService:
 
             # 포인트 검사
             if bet_amount > before_point:
-                raise WebSocketException(code=status.WS_1011_INTERNAL_ERROR, reason='bet amount too high')
+                raise WebSocketException(code=status.WS_1008_POLICY_VIOLATION, reason='bet amount too high')
 
             # 티켓 검사
             ticket = await self.ticket_repository.find_by_minigame_id_and_user_id_for_update(minigame.minigame_id, user_id)
             if ticket is None or ticket.plinko_ticket_amount <= 0:
-                raise WebSocketException(code=status.WS_1011_INTERNAL_ERROR, reason='Not enough ticket')
+                raise WebSocketException(code=status.WS_1008_POLICY_VIOLATION, reason='Not enough ticket')
 
             # 티켓 감소
             ticket.plinko_ticket_amount -= 1
