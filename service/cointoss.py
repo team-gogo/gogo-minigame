@@ -9,6 +9,7 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from domain.model.coin_toss_result import CoinTossResult
 from domain.repository.coin_toss import CoinTossResultRepository
 from domain.repository.minigame import MinigameRepository
+from domain.repository.ticket import TicketRepository
 from presentation.schema.cointoss import CoinTossBetRes
 from producer import send_message
 
@@ -18,6 +19,7 @@ class CoinTossService:
         self.session = session
         self.minigame_repository = MinigameRepository(session)
         self.coin_toss_result_repository = CoinTossResultRepository(session)
+        self.ticket_repository = TicketRepository(session)
 
     async def bet(self, stage_id, user_id, data):
         async with self.session.begin():
@@ -38,6 +40,15 @@ class CoinTossService:
             if bet_amount > before_point:
                 raise WebSocketException(code=status.WS_1011_INTERNAL_ERROR, reason='bet amount too high')
 
+            # 티켓 검사
+            ticket = await self.ticket_repository.find_by_minigame_id_and_user_id(minigame.minigame_id, user_id)
+            if ticket is None or ticket.coin_toss_ticket_amount <= 0:
+                raise WebSocketException(code=status.WS_1011_INTERNAL_ERROR, reason='Not enough ticket')
+
+            # 티켓 감소
+            ticket.coin_toss_ticket_amount -= 1
+
+            # coin toss 로직
             if result := random.choice([True, False]):
                 send_message('increase_point', bet_amount)  # TODO: kafka 토픽, 메시지 변경
                 after_point = before_point + bet_amount

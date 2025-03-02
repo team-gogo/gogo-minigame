@@ -16,9 +16,9 @@ router = APIRouter(prefix='/minigame/coin-toss')
 async def coin_toss(
         stage_id: int,
         websocket: WebSocket,
-        user_id: Annotated[str, Header()] = None,
-        authority: Annotated[str, Header()] = None,
-        session: Annotated[AsyncSession, Depends(get_session)] = None,
+        user_id: Annotated[int, Header()],
+        authority: Annotated[str, Header()],
+        session: Annotated[AsyncSession, Depends(get_session)],
 ):
 
     if authority != 'STUDENT':
