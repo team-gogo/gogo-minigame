@@ -8,6 +8,8 @@ from eureka import init_eureka
 from presentation.cointoss import router as coin_toss_router
 from presentation.plinko import router as plinko_router
 from presentation.yavarwee import router as yavarwee_router
+from presentation.ticket import router as ticket_router
+from presentation.minigame import router as minigame_router
 
 app = FastAPI()
 
@@ -20,7 +22,8 @@ async def root():
 app.include_router(coin_toss_router)
 app.include_router(plinko_router)
 app.include_router(yavarwee_router)
-
+app.include_router(ticket_router)
+app.include_router(minigame_router)
 
 if __name__ == '__main__':
     try:
