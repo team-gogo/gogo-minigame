@@ -16,11 +16,11 @@ class TicketRepository:
         result = await self.session.exec(statement)
         return result.first()
 
-    async def find_ticket_amount_by_stage_id_and_user_id(self, minigame_id, user_id) -> Optional[Ticket]:
+    async def find_ticket_amount_by_stage_id_and_user_id(self, stage_id, user_id) -> Optional[Ticket]:
         statement = (
             select(Ticket)
             .join(Minigame)
-            .where(Minigame.minigame_id == minigame_id, Ticket.user_id == user_id)
+            .where(Minigame.stage_id == stage_id, Ticket.user_id == user_id)
         )
         result = await self.session.exec(statement)
         return result.first()
