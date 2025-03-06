@@ -1,7 +1,6 @@
 from typing import Annotated
 
-from django.contrib.auth import authenticate
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect, HTTPException, status, Depends
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect, status, Depends
 from fastapi.params import Header
 from sqlmodel.ext.asyncio.session import AsyncSession
 from websockets import ConnectionClosed
@@ -16,7 +15,7 @@ router = APIRouter(prefix='/minigame/coin-toss')
 async def coin_toss(
         stage_id: int,
         websocket: WebSocket,
-        user_id: Annotated[int, Header()],
+        request_user_id: Annotated[int, Header()],
         authority: Annotated[str, Header()],
         session: Annotated[AsyncSession, Depends(get_session)],
 ):
@@ -29,7 +28,7 @@ async def coin_toss(
     while True:
         try:
             data = await websocket.receive_json()
-            result = await CoinTossService(session).bet(stage_id=stage_id, user_id=user_id, data=data)
+            result = await CoinTossService(session).bet(stage_id=stage_id, user_id=request_user_id, data=data)
             await websocket.send_json(result)
 
         except (WebSocketDisconnect, ConnectionClosed):
