@@ -7,6 +7,7 @@ from db import create_db
 from eureka import init_eureka
 from presentation.cointoss import router as coin_toss_router
 from presentation.plinko import router as plinko_router
+from presentation.yavarwee import router as yavarwee_router
 
 app = FastAPI()
 
@@ -18,6 +19,7 @@ async def root():
 
 app.include_router(coin_toss_router)
 app.include_router(plinko_router)
+app.include_router(yavarwee_router)
 
 
 if __name__ == '__main__':
