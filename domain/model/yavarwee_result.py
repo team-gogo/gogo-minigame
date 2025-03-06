@@ -1,4 +1,5 @@
 from typing import Optional
+from uuid import UUID
 
 from sqlmodel import SQLModel, Field
 
@@ -11,5 +12,6 @@ class YavarweeResult(SQLModel, table=True):
     bet_point: int
     yavarwee_stage: int  # 1~5
     point: int
+    uuid: UUID = Field(unique=True)
 
     __tablename__ = 'tbl_yavarwee_result'
