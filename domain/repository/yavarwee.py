@@ -14,6 +14,6 @@ class YavarweeResultRepository:
         self.session.add(yavarwee_result)
 
     async def find_by_uuid(self, uuid: UUID) -> YavarweeResult:
-        statement = select(YavarweeResult).where(YavarweeResult.uuid == uuid)
+        statement = select(YavarweeResult).where(YavarweeResult.uuid == uuid).with_for_update()
         result = await self.session.exec(statement)
         return result.first()
