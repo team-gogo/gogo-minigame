@@ -1,11 +1,12 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Header, status
+from fastapi import APIRouter, Header, status, Depends
 from starlette.websockets import WebSocket, WebSocketDisconnect
 from websockets import ConnectionClosed
 
 from src.minigame.factory import MinigameBetServiceFactory, Minigame
 from src.yavarwee.presentation.schema.yavarwee import YavarweeBetReq
+from authortiy import authority_student
 
 router = APIRouter(prefix='/minigame/yavarwee')
 
@@ -15,10 +16,8 @@ async def yavarwee(
         stage_id: int,
         websocket: WebSocket,
         request_user_id: Annotated[int, Header()],
-        authority: Annotated[str, Header()],
+        authority: Annotated[str, Depends(authority_student)]
 ):
-    if authority != 'STUDENT':
-        raise websocket.close(code=status.WS_1008_POLICY_VIOLATION)
 
     await websocket.accept()
 

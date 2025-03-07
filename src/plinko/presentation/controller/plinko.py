@@ -4,6 +4,7 @@ from fastapi import APIRouter, WebSocketDisconnect, WebSocket, status, Depends
 from fastapi.params import Header
 from websockets import ConnectionClosed
 
+from authortiy import authority_student
 from src.plinko.presentation.schema.plinko import PlinkoBetReq
 from src.minigame.factory import MinigameBetServiceFactory, Minigame
 
@@ -15,12 +16,8 @@ async def plinko(
         stage_id: int,
         websocket: WebSocket,
         request_user_id: Annotated[int, Header()],
-        authority: Annotated[str, Header()],
+        authority: Annotated[str, Depends(authority_student)]
 ):
-
-    if authority != 'STUDENT':
-        raise websocket.close(code=status.WS_1008_POLICY_VIOLATION)
-
     await websocket.accept()
 
     while True:

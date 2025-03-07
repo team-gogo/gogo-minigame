@@ -1,9 +1,10 @@
 from typing import Annotated
 
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect, status
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect, status, Depends
 from fastapi.params import Header
 from websockets import ConnectionClosed
 
+from authortiy import authority_student
 from src.cointoss.presentation.schema.cointoss import CoinTossBetReq
 from src.minigame.factory import MinigameBetServiceFactory, Minigame
 
@@ -15,12 +16,8 @@ async def coin_toss(
         stage_id: int,
         websocket: WebSocket,
         request_user_id: Annotated[int, Header()],
-        authority: Annotated[str, Header()],
+        authority: Annotated[str, Depends(authority_student)]
 ):
-
-    if authority != 'STUDENT':
-        raise websocket.close(code=status.WS_1008_POLICY_VIOLATION)
-
     await websocket.accept()
 
     while True:
