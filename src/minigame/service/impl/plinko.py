@@ -7,13 +7,14 @@ from py_eureka_client.eureka_client import do_service_async
 from sqlmodel.ext.asyncio.session import AsyncSession
 from starlette.exceptions import WebSocketException
 
-from src.plinko.domain.model.plinko_result import PlinkoResult
+from src.plinko.presentation.schema.plinko import PlinkoBetReq
 from src.minigame.domain.repository.minigame import MinigameRepository
 from src.plinko.domain.repository.plinko import PlinkoResultRepository
-from src.ticket.domain.repository.ticket import TicketRepository
+from src.plinko.domain.model.plinko_result import PlinkoResult
 from src.plinko.presentation.schema.plinko import PlinkoBetRes
-from src.plinko.presentation.schema.plinko import PlinkoBetRes
+from src.minigame.service.bet import MinigameBetService
 from producer import send_message
+from src.ticket.domain.repository.ticket import TicketRepository
 
 PLINKO_RISK_VALUE = {
     'LOW': [16, 9, 2, 1.4, 1.4, 1.2, 1.1, 1, 0.5, 1, 1.1, 1.2, 1.4, 1.4, 2, 9, 16],
@@ -22,16 +23,16 @@ PLINKO_RISK_VALUE = {
 }
 
 
-class PlinkoService:
+class PlinkoMinigameBetServiceImpl(MinigameBetService):
     def __init__(self, session: AsyncSession):
         self.session = session
         self.minigame_repository = MinigameRepository(session)
         self.plinko_result_repository = PlinkoResultRepository(session)
         self.ticket_repository = TicketRepository(session)
 
-    async def bet(self, stage_id, user_id, data):
+    async def bet(self, stage_id: int, user_id: int, data: PlinkoBetReq):
         async with self.session.begin():
-            bet_amount = data['amount']
+            bet_amount = data.amount
 
             # stage_id로 미니게임 조회
             minigame = await self.minigame_repository.find_by_stage_id(stage_id)
@@ -57,7 +58,7 @@ class PlinkoService:
             ticket.plinko_ticket_amount -= 1
 
             # plinko 로직
-            row = PLINKO_RISK_VALUE[data['risk']]
+            row = PLINKO_RISK_VALUE[data.risk.value]
             move = 0
             path = []
             for i in range(16):
@@ -87,4 +88,4 @@ class PlinkoService:
             return PlinkoBetRes(
                 amount=result,
                 path=['L' if p==-1 else 'R' for p in path],
-            ).dict()
+            )

@@ -2,11 +2,10 @@ from typing import Annotated
 
 from fastapi import APIRouter, WebSocketDisconnect, WebSocket, status, Depends
 from fastapi.params import Header
-from sqlmodel.ext.asyncio.session import AsyncSession
 from websockets import ConnectionClosed
 
-from src.plinko.service.plinko import PlinkoService
-from db import get_session
+from src.plinko.presentation.schema.plinko import PlinkoBetReq
+from src.minigame.factory import MinigameBetServiceFactory, Minigame
 
 router = APIRouter(prefix='/minigame/plinko')
 
@@ -17,7 +16,6 @@ async def plinko(
         websocket: WebSocket,
         request_user_id: Annotated[int, Header()],
         authority: Annotated[str, Header()],
-        session: Annotated[AsyncSession, Depends(get_session)],
 ):
 
     if authority != 'STUDENT':
@@ -28,8 +26,9 @@ async def plinko(
     while True:
         try:
             data = await websocket.receive_json()
-            result = await PlinkoService(session).bet(stage_id=stage_id, user_id=request_user_id, data=data)
-            await websocket.send_json(result)
+            service = await MinigameBetServiceFactory.create(Minigame.PLINKO)
+            result = await service.bet(stage_id=stage_id, user_id=request_user_id, data=PlinkoBetReq(**data))
+            await websocket.send_json(result.dict())
 
         except (WebSocketDisconnect, ConnectionClosed):
             break

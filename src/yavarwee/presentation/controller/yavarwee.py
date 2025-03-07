@@ -1,13 +1,11 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Header, Depends, status
-from sqlmodel.ext.asyncio.session import AsyncSession
+from fastapi import APIRouter, Header, status
 from starlette.websockets import WebSocket, WebSocketDisconnect
 from websockets import ConnectionClosed
 
-from db import get_session
+from src.minigame.factory import MinigameBetServiceFactory, Minigame
 from src.yavarwee.presentation.schema.yavarwee import YavarweeBetReq
-from src.yavarwee.service.yavarwee import YavarweeService
 
 router = APIRouter(prefix='/minigame/yavarwee')
 
@@ -18,7 +16,6 @@ async def yavarwee(
         websocket: WebSocket,
         request_user_id: Annotated[int, Header()],
         authority: Annotated[str, Header()],
-        session: Annotated[AsyncSession, Depends(get_session)],
 ):
     if authority != 'STUDENT':
         raise websocket.close(code=status.WS_1008_POLICY_VIOLATION)
@@ -28,8 +25,9 @@ async def yavarwee(
     while True:
         try:
             data = await websocket.receive_json()
-            result = await YavarweeService(session).bet(stage_id=stage_id, user_id=request_user_id, data=YavarweeBetReq(**data))
-            await websocket.send_json(result)
+            service = await MinigameBetServiceFactory.create(Minigame.YAVARWEE)
+            result = await service.bet(stage_id=stage_id, user_id=request_user_id, data=YavarweeBetReq(**data))
+            await websocket.send_json(result.dict())
 
         except (WebSocketDisconnect, ConnectionClosed):
             break

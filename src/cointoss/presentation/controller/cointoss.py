@@ -1,12 +1,11 @@
 from typing import Annotated
 
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect, status, Depends
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect, status
 from fastapi.params import Header
-from sqlmodel.ext.asyncio.session import AsyncSession
 from websockets import ConnectionClosed
 
-from db import get_session
-from src.cointoss.service.cointoss import CoinTossService
+from src.cointoss.presentation.schema.cointoss import CoinTossBetReq
+from src.minigame.factory import MinigameBetServiceFactory, Minigame
 
 router = APIRouter(prefix='/minigame/coin-toss')
 
@@ -17,7 +16,6 @@ async def coin_toss(
         websocket: WebSocket,
         request_user_id: Annotated[int, Header()],
         authority: Annotated[str, Header()],
-        session: Annotated[AsyncSession, Depends(get_session)],
 ):
 
     if authority != 'STUDENT':
@@ -28,8 +26,9 @@ async def coin_toss(
     while True:
         try:
             data = await websocket.receive_json()
-            result = await CoinTossService(session).bet(stage_id=stage_id, user_id=request_user_id, data=data)
-            await websocket.send_json(result)
+            service = await MinigameBetServiceFactory.create(Minigame.COIN_TOSS)
+            result = await service.bet(stage_id=stage_id, user_id=request_user_id, data=CoinTossBetReq(**data))
+            await websocket.send_json(result.dict())
 
         except (WebSocketDisconnect, ConnectionClosed):
             break

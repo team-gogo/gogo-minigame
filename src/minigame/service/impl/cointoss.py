@@ -6,6 +6,8 @@ from fastapi import status, WebSocketException
 from py_eureka_client.eureka_client import do_service_async
 from sqlmodel.ext.asyncio.session import AsyncSession
 
+from src.cointoss.presentation.schema.cointoss import CoinTossBetReq
+from src.minigame.service.bet import MinigameBetService
 from src.cointoss.domain.model.coin_toss_result import CoinTossResult
 from src.cointoss.domain.repository.coin_toss import CoinTossResultRepository
 from src.minigame.domain.repository.minigame import MinigameRepository
@@ -14,16 +16,16 @@ from src.cointoss.presentation.schema.cointoss import CoinTossBetRes
 from producer import send_message
 
 
-class CoinTossService:
+class CoinTossMinigameBetServiceImpl(MinigameBetService):
     def __init__(self, session: AsyncSession):
         self.session = session
         self.minigame_repository = MinigameRepository(session)
         self.coin_toss_result_repository = CoinTossResultRepository(session)
         self.ticket_repository = TicketRepository(session)
 
-    async def bet(self, stage_id, user_id, data):
+    async def bet(self, stage_id, user_id, data: CoinTossBetReq):
         async with self.session.begin():
-            bet_amount = data['amount']
+            bet_amount = data.amount
 
             # stage_id로 미니게임 조회
             minigame = await self.minigame_repository.find_by_stage_id(stage_id)
@@ -70,4 +72,4 @@ class CoinTossService:
             return CoinTossBetRes(
                 result=result,
                 amount=after_point
-            ).dict()
+            )
