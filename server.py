@@ -5,11 +5,11 @@ from fastapi import FastAPI
 
 from db import create_db
 from eureka import init_eureka
-from presentation.cointoss import router as coin_toss_router
-from presentation.plinko import router as plinko_router
-from presentation.yavarwee import router as yavarwee_router
-from presentation.ticket import router as ticket_router
-from presentation.minigame import router as minigame_router
+from src.cointoss.presentation.controller.cointoss import router as coin_toss_router
+from src.plinko.presentation.controller.plinko import router as plinko_router
+from src.yavarwee.presentation.controller.yavarwee import router as yavarwee_router
+from src.ticket.presentation.controller.ticket import router as ticket_router
+from src.minigame.presentation.controller.minigame import router as minigame_router
 
 app = FastAPI()
 
