@@ -21,4 +21,4 @@ async def get_session():
     async_session = sessionmaker(bind=async_engine, class_=AsyncSession)
 
     async with async_session() as session:
-        yield session
+        return session
