@@ -7,6 +7,8 @@ from fastapi import WebSocketException, status
 from py_eureka_client.eureka_client import do_service_async
 from sqlmodel.ext.asyncio.session import AsyncSession
 
+from event.producer import EventProducer
+from src.minigame.presentation.schema.event import MinigameAdditionPoint
 from src.minigame.service.bet import MinigameBetService
 from src.yavarwee.domain.model.yavarwee_result import YavarweeResult
 from src.yavarwee.domain.repository.yavarwee import YavarweeResultRepository
@@ -71,6 +73,15 @@ class YavarweeMinigameBetServiceImpl(MinigameBetService):
             ticket.plinko_ticket_amount -= 1
 
             yavarwee_point = bet_amount * YAVARWEE_ROUND_VALUE[data.round - 1] - bet_amount
+
+            await EventProducer.create_event(
+                'minigame_bet_addition_point',
+                MinigameAdditionPoint(
+                    point=yavarwee_point,
+                    user_id=user_id,
+                )
+            )
+
 
             await self.yavarwee_repository.save(
                 YavarweeResult(

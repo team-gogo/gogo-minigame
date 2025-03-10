@@ -6,6 +6,8 @@ from fastapi import status, WebSocketException
 from py_eureka_client.eureka_client import do_service_async
 from sqlmodel.ext.asyncio.session import AsyncSession
 
+from event.producer import EventProducer
+from src.minigame.presentation.schema.event import MinigameAdditionPoint
 from src.cointoss.presentation.schema.cointoss import CoinTossBetReq
 from src.minigame.service.bet import MinigameBetService
 from src.cointoss.domain.model.coin_toss_result import CoinTossResult
@@ -13,7 +15,6 @@ from src.cointoss.domain.repository.coin_toss import CoinTossResultRepository
 from src.minigame.domain.repository.minigame import MinigameRepository
 from src.ticket.domain.repository.ticket import TicketRepository
 from src.cointoss.presentation.schema.cointoss import CoinTossBetRes
-from producer import send_message
 
 
 class CoinTossMinigameBetServiceImpl(MinigameBetService):
@@ -50,12 +51,23 @@ class CoinTossMinigameBetServiceImpl(MinigameBetService):
             # 티켓 감소
             ticket.coin_toss_ticket_amount -= 1
 
-            # coin toss 로직
             if result := random.choice([True, False]):
-                send_message('increase_point', bet_amount)  # TODO: kafka 토픽, 메시지 변경
+                await EventProducer.create_event(
+                    'minigame_bet_addition_point',
+                    MinigameAdditionPoint(
+                        point=bet_amount,
+                        user_id=user_id,
+                    )
+                )
                 after_point = before_point + bet_amount
             else:
-                send_message('decrease_point', bet_amount)  # TODO: kafka 토픽, 메시지 변경
+                await EventProducer.create_event(
+                    'minigame_bet_minus_point',
+                    MinigameAdditionPoint(
+                        point=bet_amount,
+                        user_id=user_id,
+                    )
+                )
                 after_point = before_point - bet_amount
 
             await self.coin_toss_result_repository.save(

@@ -7,13 +7,14 @@ from py_eureka_client.eureka_client import do_service_async
 from sqlmodel.ext.asyncio.session import AsyncSession
 from starlette.exceptions import WebSocketException
 
+from src.minigame.presentation.schema.event import MinigameAdditionPoint
 from src.plinko.presentation.schema.plinko import PlinkoBetReq
 from src.minigame.domain.repository.minigame import MinigameRepository
 from src.plinko.domain.repository.plinko import PlinkoResultRepository
 from src.plinko.domain.model.plinko_result import PlinkoResult
 from src.plinko.presentation.schema.plinko import PlinkoBetRes
 from src.minigame.service.bet import MinigameBetService
-from producer import send_message
+from event.producer import EventProducer
 from src.ticket.domain.repository.ticket import TicketRepository
 
 PLINKO_RISK_VALUE = {
@@ -69,10 +70,25 @@ class PlinkoMinigameBetServiceImpl(MinigameBetService):
 
             # 배팅후 포인트 계산
             plinko_point = bet_amount * result
-            after_amount = before_point + -bet_amount + plinko_point
 
-            # TODO: 명세에 맞게 변경 필요
-            send_message('point', after_amount)
+            # Event 발급
+            addition_point = bet_amount * result - bet_amount
+            if addition_point > 0:
+                await EventProducer.create_event(
+                    'minigame_bet_addition_point',
+                    MinigameAdditionPoint(
+                        point=addition_point,
+                        user_id=user_id,
+                    )
+                )
+            else:
+                await EventProducer.create_event(
+                    'minigame_bet_minus_point',
+                    MinigameAdditionPoint(
+                        point=-addition_point,
+                        user_id=user_id,
+                    )
+                )
 
             await self.plinko_result_repository.save(
                 PlinkoResult(
