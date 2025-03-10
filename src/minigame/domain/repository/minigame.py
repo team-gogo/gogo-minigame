@@ -12,3 +12,6 @@ class MinigameRepository:
         statement = select(Minigame).where(Minigame.stage_id == stage_id)
         result = await self.session.exec(statement)
         return result.first()
+
+    async def save(self, minigame: Minigame) -> None:
+        self.session.add(minigame)
