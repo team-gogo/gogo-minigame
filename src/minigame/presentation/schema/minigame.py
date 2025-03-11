@@ -10,5 +10,5 @@ class GetActiveMinigameRes(BaseModel):
 class MinigameCreateReq(BaseModel):
     stage_id: int
     is_active_coin_toss: bool
-    is_active_plinko: bool
-    is_active_yavarwee: bool
+    is_active_plinko: bool | None = None
+    is_active_yavarwee: bool | None = None
