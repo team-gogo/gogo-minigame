@@ -8,6 +8,7 @@ from py_eureka_client.eureka_client import do_service_async
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from event.producer import EventProducer
+from minigame.domain.model.minigame import MinigameStatus
 from src.minigame.presentation.schema.event import MinigameAdditionPoint
 from src.minigame.service.bet import MinigameBetService
 from src.yavarwee.domain.model.yavarwee_result import YavarweeResult
@@ -49,6 +50,10 @@ class YavarweeMinigameBetServiceImpl(MinigameBetService):
             minigame = await self.minigame_repository.find_by_stage_id(stage_id)
             if not minigame.is_active_yavarwee:
                 raise WebSocketException(code=status.WS_1008_POLICY_VIOLATION, reason='Minigame not found')
+
+            # 미니게임 status 검사
+            if minigame.status == MinigameStatus.PENDING:
+                raise WebSocketException(code=status.WS_1008_POLICY_VIOLATION, reason='Stage is not available')
 
             # 유저 포인트 정보 가져오기
             response = await do_service_async('gogo-stage', f'/stage/api/point/{stage_id}?studentId={user_id}')
