@@ -20,19 +20,16 @@ async def consume():
 
     try:
         async for msg in consumer:
-            if msg.topic == 'create_stage_fast':
-                await EventConsumeService.create_stage(
-                    CreateStageFast(**json.loads(msg.value.decode('utf-8')))
-                )
-            elif msg.topic == 'create_stage_official':
-                await EventConsumeService.create_stage(
-                    CreateStageOfficial(**json.loads(msg.value.decode('utf-8')))
-                )
+            data = json.loads(msg.value.decode('utf-8'))
+            if msg.topic == 'stage_create_fast':
+                await EventConsumeController.create_stage(CreateStageFast(**data))
+            elif msg.topic == 'stage_create_official':
+                await EventConsumeController.create_stage(CreateStageOfficial(**data))
     finally:
         await consumer.stop()
 
 
-class EventConsumeService:
+class EventConsumeController:
     @staticmethod
     async def create_stage(data):
         session = await get_session()
