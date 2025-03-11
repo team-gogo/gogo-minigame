@@ -5,6 +5,7 @@ from fastapi import FastAPI
 
 from db import create_db
 from eureka import init_eureka
+from event.consumer import consume
 from src.cointoss.presentation.controller.cointoss import router as coin_toss_router
 from src.plinko.presentation.controller.plinko import router as plinko_router
 from src.yavarwee.presentation.controller.yavarwee import router as yavarwee_router
@@ -18,6 +19,10 @@ app = FastAPI()
 async def root():
     return 'GOGO Minigame Service OK'
 
+
+@app.on_event('startup')
+async def startup():
+    asyncio.create_task(consume())
 
 app.include_router(coin_toss_router)
 app.include_router(plinko_router)

@@ -37,7 +37,7 @@ class PlinkoMinigameBetServiceImpl(MinigameBetService):
 
             # stage_id로 미니게임 조회
             minigame = await self.minigame_repository.find_by_stage_id(stage_id)
-            if not minigame:
+            if not minigame.is_active_plinko:
                 raise WebSocketException(code=status.WS_1008_POLICY_VIOLATION, reason='Minigame not found')
 
             # 유저 포인트 정보 가져오기

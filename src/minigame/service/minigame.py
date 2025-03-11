@@ -1,5 +1,7 @@
 from sqlmodel.ext.asyncio.session import AsyncSession
 
+from src.minigame.domain.model.minigame import Minigame
+from src.minigame.presentation.schema.minigame import MinigameCreateReq
 from src.minigame.domain.repository.minigame import MinigameRepository
 from src.minigame.presentation.schema.minigame import GetActiveMinigameRes
 
@@ -16,4 +18,15 @@ class MinigameService:
                 isPlinkoActive=minigame.is_active_plinko,
                 isCoinTossActive=minigame.is_active_coin_toss,
                 isYavarweeActive=minigame.is_active_yavarwee,
+            )
+
+    async def create_minigame(self, data: MinigameCreateReq):
+        async with self.session.begin():
+            return await self.minigame_repository.save(
+                Minigame(
+                    stage_id=data.stage_id,
+                    is_active_plinko=data.is_active_plinko,
+                    is_active_coin_toss=data.is_active_coin_toss,
+                    is_active_yavarwee=data.is_active_yavarwee
+                )
             )
