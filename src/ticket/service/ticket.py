@@ -26,7 +26,7 @@ class TicketService:
                     )
                 )
                 await self.session.flush()
-                ticket = self.ticket_repository.find_ticket_amount_by_stage_id_and_user_id(stage_id=stage_id, user_id=user_id)
+                ticket = await self.ticket_repository.find_ticket_amount_by_stage_id_and_user_id(stage_id=stage_id, user_id=user_id)
 
             await self.session.commit()
 

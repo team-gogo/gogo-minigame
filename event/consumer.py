@@ -1,4 +1,5 @@
 import json
+import logging
 
 from aiokafka import AIOKafkaConsumer
 
@@ -21,15 +22,18 @@ async def consume():
 
     try:
         async for msg in consumer:
-            data = json.loads(msg.value.decode('utf-8'))
-            if msg.topic == 'stage_create_fast':
-                await EventConsumeController.create_stage_fast(CreateStageFast(**data))
-            elif msg.topic == 'stage_create_official':
-                await EventConsumeController.create_stage_official(CreateStageOfficial(**data))
-            elif msg.topic == 'stage_confirm':
-                await EventConsumeController.stage_confirm(StageConfirmReq(**data))
-            elif msg.topic == 'ticket_shop_buy':
-                await EventConsumeController.ticket_buy(TicketShopBuyReq(**data))
+            try:
+                data = json.loads(msg.value.decode('utf-8'))
+                if msg.topic == 'stage_create_fast':
+                    await EventConsumeController.create_stage_fast(CreateStageFast(**data))
+                elif msg.topic == 'stage_create_official':
+                    await EventConsumeController.create_stage_official(CreateStageOfficial(**data))
+                elif msg.topic == 'stage_confirm':
+                    await EventConsumeController.stage_confirm(StageConfirmReq(**data))
+                elif msg.topic == 'ticket_shop_buy':
+                    await EventConsumeController.ticket_buy(TicketShopBuyReq(**data))
+            except Exception as e:
+                logging.error(f'kafka consume format error = ' + str(e))
 
     finally:
         await consumer.stop()
