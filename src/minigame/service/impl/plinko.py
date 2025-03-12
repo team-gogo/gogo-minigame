@@ -7,6 +7,7 @@ from py_eureka_client.eureka_client import do_service_async
 from sqlmodel.ext.asyncio.session import AsyncSession
 from starlette.exceptions import WebSocketException
 
+from src.minigame.service.validation import BetValidationService
 from src.minigame.presentation.schema.event import MinigameAdditionPoint
 from src.plinko.presentation.schema.plinko import PlinkoBetReq
 from src.minigame.domain.repository.minigame import MinigameRepository
@@ -39,6 +40,8 @@ class PlinkoMinigameBetServiceImpl(MinigameBetService):
             minigame = await self.minigame_repository.find_by_stage_id(stage_id)
             if not minigame.is_active_plinko:
                 raise WebSocketException(code=status.WS_1008_POLICY_VIOLATION, reason='Minigame not found')
+
+            await BetValidationService.validate_minigame_status(minigame)
 
             # 유저 포인트 정보 가져오기
             response = await do_service_async('gogo-stage', f'/stage/api/point/{stage_id}?studentId={user_id}')

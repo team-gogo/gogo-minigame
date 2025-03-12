@@ -1,13 +1,13 @@
 import base64
 import json
 import time
-from hashlib import pbkdf2_hmac
 
 from fastapi import WebSocketException, status
 from py_eureka_client.eureka_client import do_service_async
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from event.producer import EventProducer
+from src.minigame.service.validation import BetValidationService
 from src.minigame.presentation.schema.event import MinigameAdditionPoint
 from src.minigame.service.bet import MinigameBetService
 from src.yavarwee.domain.model.yavarwee_result import YavarweeResult
@@ -31,24 +31,14 @@ class YavarweeMinigameBetServiceImpl(MinigameBetService):
         async with (self.session.begin()):
             bet_amount = data.amount
 
-            # proof 검증 로직
-            my_hash = pbkdf2_hmac(
-                'sha256',
-                f'{data.uuid}{data.amount}{data.round}'.encode('utf-8'),
-                str(YAVARWEE_SECRET).encode('utf-8'),
-                100000
-            )
-
-            d_proof = base64.b64encode(my_hash).decode('utf-8')
-            proof = base64.b64decode(d_proof)
-
-            if not my_hash == proof:
-                raise WebSocketException(code=status.WS_1008_POLICY_VIOLATION, reason='Proof fail.')
+            await BetValidationService.validate_proof(uuid=data.uuid, amount=data.amount, round_=data.round)
 
             # stage_id로 미니게임 조회
             minigame = await self.minigame_repository.find_by_stage_id(stage_id)
             if not minigame.is_active_yavarwee:
                 raise WebSocketException(code=status.WS_1008_POLICY_VIOLATION, reason='Minigame not found')
+
+            await BetValidationService.validate_minigame_status(minigame)
 
             # 유저 포인트 정보 가져오기
             response = await do_service_async('gogo-stage', f'/stage/api/point/{stage_id}?studentId={user_id}')

@@ -1,6 +1,7 @@
 from sqlmodel.ext.asyncio.session import AsyncSession
+from fastapi import HTTPException
 
-from src.minigame.domain.model.minigame import Minigame
+from src.minigame.domain.model.minigame import Minigame, MinigameStatus
 from src.minigame.presentation.schema.minigame import MinigameCreateReq
 from src.minigame.domain.repository.minigame import MinigameRepository
 from src.minigame.presentation.schema.minigame import GetActiveMinigameRes
@@ -30,3 +31,10 @@ class MinigameService:
                     is_active_yavarwee=data.is_active_yavarwee
                 )
             )
+
+    async def confirm_minigame(self, stage_id):
+        async with self.session.begin():
+            minigame = await self.minigame_repository.find_by_stage_id(stage_id)
+            if minigame is None:
+                raise HTTPException(status_code=404, detail="Minigame not found")
+            minigame.status = MinigameStatus.ACTIVE

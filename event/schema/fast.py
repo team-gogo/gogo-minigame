@@ -1,9 +1,11 @@
 from pydantic import BaseModel
 
-from event.schema.stage import CreateStageMinigameActive
+
+class IsCoinTossActive(BaseModel):
+    isCoinTossActive :bool
 
 
 class CreateStageFast(BaseModel):
     id: str
     stageId: int
-    miniGame: CreateStageMinigameActive
+    miniGame: IsCoinTossActive
