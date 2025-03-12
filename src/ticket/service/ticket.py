@@ -28,8 +28,6 @@ class TicketService:
                 await self.session.flush()
                 ticket = await self.ticket_repository.find_ticket_amount_by_stage_id_and_user_id(stage_id=stage_id, user_id=user_id)
 
-            await self.session.commit()
-
             return GetTicketAmountRes(
                 plinko=ticket.plinko_ticket_amount,
                 yavarwee=ticket.yavarwee_ticket_amount,
@@ -56,5 +54,3 @@ class TicketService:
                 ticket.yavarwee_ticket_amount += ticket_amount
             elif game == TicketType.COINTOSS:
                 ticket.coin_toss_ticket_amount += ticket_amount
-
-            await self.session.commit()
