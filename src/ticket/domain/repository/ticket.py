@@ -24,3 +24,6 @@ class TicketRepository:
         )
         result = await self.session.exec(statement)
         return result.first()
+
+    async def save(self, data):
+        self.session.add(data)

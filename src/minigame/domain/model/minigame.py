@@ -1,6 +1,7 @@
 from enum import Enum
 from typing import Optional
 
+from sqlalchemy import Column, BigInteger
 from sqlmodel import Field, SQLModel
 
 
@@ -11,7 +12,7 @@ class MinigameStatus(Enum):
 
 class Minigame(SQLModel, table=True):
     minigame_id: int = Field(default=None, primary_key=True)
-    stage_id: int = Field(unique=True)
+    stage_id: int = Field(sa_column=Column(BigInteger(), unique=True))
     is_active_coin_toss: bool = Field(default=False)
     is_active_plinko: Optional[bool] = Field(default=False)
     is_active_yavarwee: Optional[bool] = Field(default=False)
