@@ -26,9 +26,15 @@ class EventConsumeController:
         await MinigameService(session).create_minigame(
             MinigameCreateReq(
                 stage_id=data.stageId,
-                is_active_plinko= data.miniGame.isPlinkoActive,
-                is_active_yavarwee=data.miniGame.isYavarweeActive,
-                is_active_coin_toss=data.miniGame.isCoinTossActive
+                is_active_plinko=data.miniGame.plinko.isActive,
+                is_active_yavarwee=data.miniGame.yavarwee.isActive,
+                is_active_coin_toss=data.miniGame.coinToss.isActive,
+                coin_toss_max_betting_point=data.miniGame.coinToss.maxBettingPoint,
+                coin_toss_min_betting_point=data.miniGame.coinToss.minBettingPoint,
+                yavarwee_max_betting_point=data.miniGame.yavarwee.maxBettingPoint,
+                yavarwee_min_betting_point=data.miniGame.yavarwee.minBettingPoint,
+                plinko_max_betting_point=data.miniGame.plinko.maxBettingPoint,
+                plinko_min_betting_point=data.miniGame.plinko.minBettingPoint,
             )
         )
 

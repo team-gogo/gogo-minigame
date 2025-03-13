@@ -1,7 +1,5 @@
 from pydantic import BaseModel
 
-from event.schema.stage import CreateStageMinigameActive
-
 
 class CreateStageShopGameDetails(BaseModel):
     isActive: int
@@ -15,8 +13,20 @@ class CreateStageShop(BaseModel):
     plinko: CreateStageShopGameDetails
 
 
+class CreateOfficialStageGameDetails(BaseModel):
+    isActive: bool
+    maxBettingPoint: int | None = None
+    minBettingPoint: int | None = None
+
+
+class CreateOfficialStageGameType(BaseModel):
+    coinToss: CreateOfficialStageGameDetails
+    yavarwee: CreateOfficialStageGameDetails
+    plinko: CreateOfficialStageGameDetails
+
+
 class CreateStageOfficial(BaseModel):
     id: str
     stageId: int
-    miniGame: CreateStageMinigameActive
+    miniGame: CreateOfficialStageGameType
     shop: CreateStageShop
