@@ -1,10 +1,12 @@
+from typing import Optional
+
 from pydantic import BaseModel
 
 
 class CreateStageShopGameDetails(BaseModel):
     isActive: int
-    price: int | None = None
-    quantity: int | None = None
+    price: Optional[int] = None
+    quantity: Optional[int] = None
 
 
 class CreateStageShop(BaseModel):
@@ -15,8 +17,8 @@ class CreateStageShop(BaseModel):
 
 class CreateOfficialStageGameDetails(BaseModel):
     isActive: bool
-    maxBettingPoint: int | None = None
-    minBettingPoint: int | None = None
+    maxBettingPoint: Optional[int] = None
+    minBettingPoint: Optional[int] = None
 
 
 class CreateOfficialStageGameType(BaseModel):
