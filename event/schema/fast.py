@@ -2,7 +2,9 @@ from pydantic import BaseModel
 
 
 class IsCoinTossActive(BaseModel):
-    isCoinTossActive :bool
+    isCoinTossActive: bool
+    coinTossMaxBettingPoint: int | None = None
+    coinTossMinBettingPoint: int | None = None
 
 
 class CreateStageFast(BaseModel):

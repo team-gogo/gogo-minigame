@@ -28,7 +28,13 @@ class MinigameService:
                     stage_id=data.stage_id,
                     is_active_plinko=data.is_active_plinko,
                     is_active_coin_toss=data.is_active_coin_toss,
-                    is_active_yavarwee=data.is_active_yavarwee
+                    is_active_yavarwee=data.is_active_yavarwee,
+                    coin_toss_max_betting_point=data.coin_toss_max_betting_point,
+                    coin_toss_min_betting_point=data.coin_toss_min_betting_point,
+                    yavarwee_toss_max_betting_point=data.yavarwee_max_betting_point,
+                    yavarwee_toss_min_betting_point=data.yavarwee_min_betting_point,
+                    plinko_max_betting_point=data.plinko_max_betting_point,
+                    plinko_min_betting_point=data.plinko_min_betting_point,
                 )
             )
 

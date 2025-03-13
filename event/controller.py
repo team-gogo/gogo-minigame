@@ -14,7 +14,9 @@ class EventConsumeController:
         await MinigameService(session).create_minigame(
             MinigameCreateReq(
                 stage_id=data.stageId,
-                is_active_coin_toss=data.miniGame.isCoinTossActive
+                is_active_coin_toss=data.miniGame.isCoinTossActive,
+                coin_toss_max_betting_point=data.miniGame.coinTossMaxBettingPoint,
+                coin_toss_min_betting_point=data.miniGame.coinTossMinBettingPoint
             )
         )
 
