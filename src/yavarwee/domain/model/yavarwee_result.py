@@ -4,6 +4,8 @@ from uuid import UUID
 from sqlalchemy import BigInteger, Column
 from sqlmodel import SQLModel, Field
 
+from minigame.domain.model.minigame import MinigameBetStatus
+
 
 class YavarweeResult(SQLModel, table=True):
     yavarwee_result_id: Optional[int] = Field(default=None, primary_key=True)
@@ -14,5 +16,6 @@ class YavarweeResult(SQLModel, table=True):
     yavarwee_stage: int  # 1~5
     point: int = Field(sa_column=Column(BigInteger()))
     uuid: UUID = Field(unique=True)
+    status: MinigameBetStatus
 
     __tablename__ = 'tbl_yavarwee_result'

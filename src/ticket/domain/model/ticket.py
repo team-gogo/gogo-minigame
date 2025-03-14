@@ -1,4 +1,5 @@
 from typing import Optional
+from uuid import UUID
 
 from sqlalchemy import Column, BigInteger
 from sqlmodel import SQLModel, Field
@@ -11,5 +12,7 @@ class Ticket(SQLModel, table=True):
     coin_toss_ticket_amount: int = Field(sa_column=Column(BigInteger(), default=0))
     plinko_ticket_amount: int = Field(sa_column=Column(BigInteger(), default=0))
     yavarwee_ticket_amount: int = Field(sa_column=Column(BigInteger(), default=0))
+    uuid: UUID = Field(unique=True)
+    status: Enum
 
     __tablename__ = 'tbl_minigame_ticket'
