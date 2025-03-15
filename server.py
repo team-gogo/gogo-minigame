@@ -1,4 +1,5 @@
 import asyncio
+import logging
 
 import uvicorn
 from fastapi import FastAPI
@@ -13,6 +14,8 @@ from src.ticket.presentation.controller.ticket import router as ticket_router
 from src.minigame.presentation.controller.minigame import router as minigame_router
 
 app = FastAPI()
+
+logging.basicConfig(level=logging.INFO)
 
 
 @app.get('/minigame/health')

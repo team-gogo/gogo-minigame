@@ -1,4 +1,5 @@
 import json
+import logging
 
 from aiokafka import AIOKafkaProducer
 from pydantic import BaseModel
@@ -16,4 +17,5 @@ class EventProducer:
             topic=topic,
             value=json.dumps(value.dict()).encode('utf-8'),
         )
+        logging.info(f'Kafka producer Send {topic} value: {value}')
         await producer.stop()
