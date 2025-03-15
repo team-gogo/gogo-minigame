@@ -4,7 +4,7 @@ from uuid import UUID
 from sqlalchemy import Column, BigInteger
 from sqlmodel import SQLModel, Field
 
-from minigame.domain.model.minigame import MinigameBetStatus
+from src.minigame.domain.model.minigame import MinigameBetStatus
 
 
 class PlinkoResult(SQLModel, table=True):

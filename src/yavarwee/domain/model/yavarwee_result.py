@@ -4,7 +4,7 @@ from uuid import UUID
 from sqlalchemy import BigInteger, Column
 from sqlmodel import SQLModel, Field
 
-from minigame.domain.model.minigame import MinigameBetStatus
+from src.minigame.domain.model.minigame import MinigameBetStatus
 
 
 class YavarweeResult(SQLModel, table=True):

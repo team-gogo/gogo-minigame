@@ -4,6 +4,8 @@ from uuid import UUID
 from sqlalchemy import Column, BigInteger
 from sqlmodel import SQLModel, Field
 
+from src.minigame.domain.model.minigame import MinigameBetStatus
+
 
 class Ticket(SQLModel, table=True):
     ticket_id: Optional[int] = Field(default=None, primary_key=True)
@@ -13,6 +15,6 @@ class Ticket(SQLModel, table=True):
     plinko_ticket_amount: int = Field(sa_column=Column(BigInteger(), default=0))
     yavarwee_ticket_amount: int = Field(sa_column=Column(BigInteger(), default=0))
     uuid: UUID = Field(unique=True)
-    status: Enum
+    status: MinigameBetStatus
 
     __tablename__ = 'tbl_minigame_ticket'
