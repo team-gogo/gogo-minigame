@@ -4,11 +4,6 @@ import logging
 from aiokafka import AIOKafkaConsumer
 
 from config import KAFKA_HOST, KAFKA_PORT
-from event.controller import EventConsumeController
-from event.schema.fast import CreateStageFast
-from event.schema.official import CreateStageOfficial
-from event.schema.stage import StageConfirmReq
-from event.schema.ticket import TicketShopBuyReq
 from event.topic import event_topic
 
 
