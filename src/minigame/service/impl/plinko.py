@@ -1,12 +1,15 @@
 import json
 import random
 import time
+import uuid
 
 from fastapi import status
 from py_eureka_client.eureka_client import do_service_async
 from sqlmodel.ext.asyncio.session import AsyncSession
 from starlette.exceptions import WebSocketException
 
+from db import get_session
+from src.minigame.domain.model.minigame import MinigameBetStatus
 from src.minigame.service.validation import BetValidationService
 from src.minigame.presentation.schema.event import MinigameAdditionPoint
 from src.plinko.presentation.schema.plinko import PlinkoBetReq
@@ -17,6 +20,7 @@ from src.plinko.presentation.schema.plinko import PlinkoBetRes
 from src.minigame.service.bet import MinigameBetService
 from event.producer import EventProducer
 from src.ticket.domain.repository.ticket import TicketRepository
+from src.ticket.service.ticket import TicketService
 
 PLINKO_RISK_VALUE = {
     'LOW': [16, 9, 2, 1.4, 1.4, 1.2, 1.1, 1, 0.5, 1, 1.1, 1.2, 1.4, 1.4, 2, 9, 16],
@@ -31,6 +35,7 @@ class PlinkoMinigameBetServiceImpl(MinigameBetService):
         self.minigame_repository = MinigameRepository(session)
         self.plinko_result_repository = PlinkoResultRepository(session)
         self.ticket_repository = TicketRepository(session)
+        self.ticket_service = TicketService
 
     async def bet(self, stage_id: int, user_id: int, data: PlinkoBetReq):
         async with self.session.begin():
@@ -54,12 +59,14 @@ class PlinkoMinigameBetServiceImpl(MinigameBetService):
                 raise WebSocketException(code=status.WS_1008_POLICY_VIOLATION, reason='bet amount too high')
 
             # 티켓 검사
-            ticket = await self.ticket_repository.find_by_minigame_id_and_user_id_for_update(minigame.minigame_id, user_id)
-            if ticket is None or ticket.plinko_ticket_amount <= 0:
+            ticket_amount = await self.ticket_service(await get_session()).get_ticket_amount(user_id=user_id, stage_id=stage_id)
+            if ticket_amount is None or ticket_amount.plinko <= 0:
                 raise WebSocketException(code=status.WS_1008_POLICY_VIOLATION, reason='Not enough ticket')
+            ticket = await self.ticket_repository.find_ticket_amount_by_stage_id_and_user_id(stage_id=stage_id, user_id=user_id)
 
             # 티켓 감소
             ticket.plinko_ticket_amount -= 1
+            uuid_ = str(uuid.uuid4())
 
             # plinko 로직
             row = PLINKO_RISK_VALUE[data.risk.value]
@@ -78,16 +85,20 @@ class PlinkoMinigameBetServiceImpl(MinigameBetService):
             addition_point = bet_amount * result - bet_amount
             if addition_point > 0:
                 await EventProducer.create_event(
-                    'minigame_bet_addition_point',
-                    MinigameAdditionPoint(
+                    topic='minigame_bet_addition_point',
+                    key=uuid_,
+                    value=MinigameAdditionPoint(
+                        id=uuid_,
                         point=addition_point,
                         user_id=user_id,
                     )
                 )
             else:
                 await EventProducer.create_event(
-                    'minigame_bet_minus_point',
-                    MinigameAdditionPoint(
+                    topic='minigame_bet_minus_point',
+                    key=uuid_,
+                    value=MinigameAdditionPoint(
+                        id=uuid_,
                         point=-addition_point,
                         user_id=user_id,
                     )
@@ -100,7 +111,9 @@ class PlinkoMinigameBetServiceImpl(MinigameBetService):
                     timestamp=int(time.time()),
                     bet_point=bet_amount,
                     point=plinko_point,
-                    result=result
+                    result=result,
+                    uuid=uuid_,
+                    status=MinigameBetStatus.CONFIRMED
                 )
             )
 
