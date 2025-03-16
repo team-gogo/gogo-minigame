@@ -15,7 +15,7 @@ class CoinTossResult(SQLModel, table=True):
     bet_point: int = Field(sa_column=Column(BigInteger()))
     result: bool
     point: int = Field(sa_column=Column(BigInteger()))
-    uuid: UUID = Field(unique=True)
+    uuid: str = Field(unique=True)
     status: MinigameBetStatus
 
     __tablename__ = 'tbl_coin_toss_result'
