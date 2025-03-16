@@ -12,6 +12,6 @@ class Role(Enum):
 
 
 def authority_student(request_user_authority: str = Header(...)):
-    if request_user_authority in (Role.USER.value, Role.STAFF.value):
+    if request_user_authority not in (Role.USER.value, Role.STAFF.value):
         raise WebSocketException(code=WS_1008_POLICY_VIOLATION, reason='Authority must be "USER"')
     return request_user_authority
