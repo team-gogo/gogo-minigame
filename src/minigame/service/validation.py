@@ -9,8 +9,9 @@ from src.minigame.domain.model.minigame import MinigameStatus, Minigame
 
 
 class BetValidationService:
+    # Todo: sha logic
     @staticmethod
-    async def validate_proof(uuid: UUID, amount: int, round_: int) -> None:
+    async def validate_proof(uuid: UUID, amount: int, round_: int, proof: str) -> None:
         my_hash = pbkdf2_hmac(
             'sha256',
             f'{uuid}{amount}{round_}'.encode('utf-8'),
@@ -18,10 +19,9 @@ class BetValidationService:
             100000
         )
 
-        d_proof = base64.b64encode(my_hash).decode('utf-8')
-        proof = base64.b64decode(d_proof)
+        user_proof = base64.b64decode(proof)
 
-        if not my_hash == proof:
+        if not my_hash == user_proof:
             raise WebSocketException(code=status.WS_1008_POLICY_VIOLATION, reason='Proof fail.')
 
     @staticmethod

@@ -6,7 +6,9 @@ from fastapi import WebSocketException, status
 from py_eureka_client.eureka_client import do_service_async
 from sqlmodel.ext.asyncio.session import AsyncSession
 
+from db import get_session
 from event.producer import EventProducer
+from src.minigame.domain.model.minigame import MinigameBetStatus
 from src.minigame.service.validation import BetValidationService
 from src.minigame.presentation.schema.event import MinigameAdditionPoint
 from src.minigame.service.bet import MinigameBetService
@@ -15,7 +17,7 @@ from src.yavarwee.domain.repository.yavarwee import YavarweeResultRepository
 from src.minigame.domain.repository.minigame import MinigameRepository
 from src.ticket.domain.repository.ticket import TicketRepository
 from src.yavarwee.presentation.schema.yavarwee import YavarweeBetReq, YavarweeBetRes
-from config import YAVARWEE_SECRET
+from src.ticket.service.ticket import TicketService
 
 YAVARWEE_ROUND_VALUE = [1.1, 1.3, 1.5, 2, 5]
 
@@ -26,12 +28,13 @@ class YavarweeMinigameBetServiceImpl(MinigameBetService):
         self.minigame_repository = MinigameRepository(session)
         self.yavarwee_repository = YavarweeResultRepository(session)
         self.ticket_repository = TicketRepository(session)
+        self.ticket_service = TicketService
 
     async def bet(self, stage_id, user_id, data: YavarweeBetReq):
         async with (self.session.begin()):
             bet_amount = data.amount
 
-            await BetValidationService.validate_proof(uuid=data.uuid, amount=data.amount, round_=data.round)
+            await BetValidationService.validate_proof(uuid=data.uuid, amount=data.amount, round_=data.round, proof=data.proof)
 
             # stage_id로 미니게임 조회
             minigame = await self.minigame_repository.find_by_stage_id(stage_id)
@@ -51,13 +54,14 @@ class YavarweeMinigameBetServiceImpl(MinigameBetService):
                 raise WebSocketException(code=status.WS_1008_POLICY_VIOLATION, reason='bet amount too high')
 
             # UUID 검사
-            if await self.yavarwee_repository.find_by_uuid(data.uuid):
+            if await self.yavarwee_repository.find_by_uuid(str(data.uuid)):
                 raise WebSocketException(code=status.WS_1008_POLICY_VIOLATION, reason='uuid already exists')
 
             # 티켓 검사
-            ticket = await self.ticket_repository.find_by_minigame_id_and_user_id_for_update(minigame.minigame_id, user_id)
-            if ticket is None or ticket.yavarwee_ticket_amount <= 0:
+            ticket_amount = await self.ticket_service(await get_session()).get_ticket_amount(user_id=user_id, stage_id=stage_id)
+            if ticket_amount is None or ticket_amount.yavarwee <= 0:
                 raise WebSocketException(code=status.WS_1008_POLICY_VIOLATION, reason='Not enough ticket')
+            ticket = await self.ticket_repository.find_ticket_amount_by_stage_id_and_user_id(stage_id=stage_id, user_id=user_id)
 
             # 티켓 감소
             ticket.plinko_ticket_amount -= 1
@@ -65,8 +69,10 @@ class YavarweeMinigameBetServiceImpl(MinigameBetService):
             yavarwee_point = bet_amount * YAVARWEE_ROUND_VALUE[data.round - 1] - bet_amount
 
             await EventProducer.create_event(
-                'minigame_bet_addition_point',
-                MinigameAdditionPoint(
+                topic='minigame_bet_addition_point',
+                key=str(data.uuid),
+                value=MinigameAdditionPoint(
+                    id=str(data.uuid),
                     point=yavarwee_point,
                     user_id=user_id,
                 )
@@ -81,7 +87,8 @@ class YavarweeMinigameBetServiceImpl(MinigameBetService):
                     bet_point=bet_amount,
                     yavarwee_stage=data.round,
                     point=yavarwee_point,
-                    uuid=data.uuid,
+                    uuid=str(data.uuid),
+                    status=MinigameBetStatus.CONFIRMED
                 )
             )
 
