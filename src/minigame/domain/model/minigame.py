@@ -10,6 +10,11 @@ class MinigameStatus(Enum):
     PENDING = "PENDING"
 
 
+class MinigameBetStatus(Enum):
+    ROLLBACK = "ROLLBACK"
+    CONFIRMED = "CONFIRMED"
+
+
 class Minigame(SQLModel, table=True):
     minigame_id: int = Field(default=None, primary_key=True)
     stage_id: int = Field(sa_column=Column(BigInteger(), unique=True))

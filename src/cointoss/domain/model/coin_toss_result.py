@@ -1,7 +1,10 @@
 from typing import Optional
+from uuid import UUID
 
 from sqlalchemy import Column, BigInteger
 from sqlmodel import SQLModel, Field
+
+from src.minigame.domain.model.minigame import MinigameBetStatus
 
 
 class CoinTossResult(SQLModel, table=True):
@@ -12,5 +15,7 @@ class CoinTossResult(SQLModel, table=True):
     bet_point: int = Field(sa_column=Column(BigInteger()))
     result: bool
     point: int = Field(sa_column=Column(BigInteger()))
+    uuid: UUID = Field(unique=True)
+    status: MinigameBetStatus
 
     __tablename__ = 'tbl_coin_toss_result'
