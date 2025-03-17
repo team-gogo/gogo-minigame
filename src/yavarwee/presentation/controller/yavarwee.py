@@ -16,7 +16,7 @@ async def yavarwee(
         stage_id: int,
         websocket: WebSocket,
         request_user_id: Annotated[int, Header()],
-        authority: Annotated[str, Depends(authority_student)]
+        request_user_authority: Annotated[str, Depends(authority_student)]
 ):
 
     await websocket.accept()

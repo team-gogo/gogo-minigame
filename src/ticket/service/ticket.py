@@ -33,7 +33,10 @@ class TicketService:
                 await self.ticket_repository.save(
                     Ticket(
                         minigame_id=minigame.minigame_id,
-                        user_id=user_id
+                        user_id=user_id,
+                        coin_toss_ticket_amount=minigame.coin_toss_default_ticket_amount,
+                        yavarwee_ticket_amount=minigame.yavarwee_default_ticket_amount,
+                        plinko_ticket_amount=minigame.plinko_default_ticket_amount
                     )
                 )
                 await self.session.flush()
@@ -47,7 +50,6 @@ class TicketService:
 
     async def addition_ticket(self, data: TicketShopBuyReq):
         try:
-
             async with self.session.begin():
                 ticket = await self.ticket_repository.find_ticket_amount_by_stage_id_and_user_id(stage_id=data.stageId, user_id=data.studentId)
                 if ticket is None:
@@ -55,7 +57,10 @@ class TicketService:
                     await self.ticket_repository.save(
                         Ticket(
                             minigame_id=minigame.minigame_id,
-                            user_id=data.studentId
+                            user_id=data.studentId,
+                            coin_toss_ticket_amount=minigame.coin_toss_default_ticket_amount,
+                            yavarwee_ticket_amount=minigame.yavarwee_default_ticket_amount,
+                            plinko_ticket_amount=minigame.plinko_default_ticket_amount
                         )
                     )
                     await self.session.flush()

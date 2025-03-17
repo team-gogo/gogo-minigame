@@ -13,7 +13,7 @@ class YavarweeResultRepository:
     async def save(self, yavarwee_result: YavarweeResult):
         self.session.add(yavarwee_result)
 
-    async def find_by_uuid(self, uuid: UUID) -> YavarweeResult:
+    async def find_by_uuid(self, uuid: str) -> YavarweeResult:
         statement = select(YavarweeResult).where(YavarweeResult.uuid == uuid)
         result = await self.session.exec(statement)
         return result.first()

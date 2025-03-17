@@ -1,12 +1,15 @@
 import json
 import random
 import time
+import uuid
 
 from fastapi import status, WebSocketException
 from py_eureka_client.eureka_client import do_service_async
 from sqlmodel.ext.asyncio.session import AsyncSession
 
+from db import get_session
 from event.producer import EventProducer
+from src.minigame.domain.model.minigame import MinigameBetStatus
 from src.minigame.service.validation import BetValidationService
 from src.minigame.presentation.schema.event import MinigameAdditionPoint
 from src.cointoss.presentation.schema.cointoss import CoinTossBetReq
@@ -16,6 +19,7 @@ from src.cointoss.domain.repository.coin_toss import CoinTossResultRepository
 from src.minigame.domain.repository.minigame import MinigameRepository
 from src.ticket.domain.repository.ticket import TicketRepository
 from src.cointoss.presentation.schema.cointoss import CoinTossBetRes
+from src.ticket.service.ticket import TicketService
 
 
 class CoinTossMinigameBetServiceImpl(MinigameBetService):
@@ -24,6 +28,7 @@ class CoinTossMinigameBetServiceImpl(MinigameBetService):
         self.minigame_repository = MinigameRepository(session)
         self.coin_toss_result_repository = CoinTossResultRepository(session)
         self.ticket_repository = TicketRepository(session)
+        self.ticket_service = TicketService
 
     async def bet(self, stage_id, user_id, data: CoinTossBetReq):
         async with self.session.begin():
@@ -47,17 +52,24 @@ class CoinTossMinigameBetServiceImpl(MinigameBetService):
                 raise WebSocketException(code=status.WS_1008_POLICY_VIOLATION, reason='bet amount too high')
 
             # 티켓 검사
-            ticket = await self.ticket_repository.find_by_minigame_id_and_user_id_for_update(minigame.minigame_id, user_id)
-            if ticket is None or ticket.coin_toss_ticket_amount <= 0:
+            ticket_amount = await self.ticket_service(await get_session()).get_ticket_amount(user_id=user_id, stage_id=stage_id)
+            if ticket_amount is None or ticket_amount.coinToss <= 0:
                 raise WebSocketException(code=status.WS_1008_POLICY_VIOLATION, reason='Not enough ticket')
+            ticket = await self.ticket_repository.find_ticket_amount_by_stage_id_and_user_id(stage_id=stage_id, user_id=user_id)
 
             # 티켓 감소
             ticket.coin_toss_ticket_amount -= 1
 
+            uuid_ = str(uuid.uuid4())
+
+            #     "error": "unsupported operand type(s) for &: 'str' and 'int'" 해결
+
             if result := random.choice([True, False]):
                 await EventProducer.create_event(
-                    'minigame_bet_addition_point',
-                    MinigameAdditionPoint(
+                    topic='minigame_bet_addition_point',
+                    key=uuid_,
+                    value=MinigameAdditionPoint(
+                        id=uuid_,
                         point=bet_amount,
                         user_id=user_id,
                     )
@@ -65,8 +77,10 @@ class CoinTossMinigameBetServiceImpl(MinigameBetService):
                 after_point = before_point + bet_amount
             else:
                 await EventProducer.create_event(
-                    'minigame_bet_minus_point',
-                    MinigameAdditionPoint(
+                    topic='minigame_bet_minus_point',
+                    key=uuid_,
+                    value=MinigameAdditionPoint(
+                        id=uuid_,
                         point=bet_amount,
                         user_id=user_id,
                     )
@@ -80,7 +94,9 @@ class CoinTossMinigameBetServiceImpl(MinigameBetService):
                     timestamp=int(time.time()),
                     bet_point=bet_amount,
                     result=result,
-                    point=after_point
+                    point=after_point,
+                    uuid=uuid_,
+                    status=MinigameBetStatus.CONFIRMED
                 )
             )
 

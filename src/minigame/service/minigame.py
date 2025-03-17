@@ -1,16 +1,19 @@
 from sqlmodel.ext.asyncio.session import AsyncSession
 from fastapi import HTTPException
 
+from event.schema.fast import CreateStageFast
+from event.schema.official import CreateStageOfficial
 from src.minigame.domain.model.minigame import Minigame, MinigameStatus
-from src.minigame.presentation.schema.minigame import MinigameCreateReq
 from src.minigame.domain.repository.minigame import MinigameRepository
 from src.minigame.presentation.schema.minigame import GetActiveMinigameRes
+from src.ticket.domain.repository.ticket import TicketRepository
 
 
 class MinigameService:
     def __init__(self, session: AsyncSession):
         self.session = session
         self.minigame_repository = MinigameRepository(session)
+        self.ticket_repository = TicketRepository(session)
 
     async def get_active_minigame(self, stage_id):
         async with self.session.begin():
@@ -21,20 +24,41 @@ class MinigameService:
                 isYavarweeActive=minigame.is_active_yavarwee,
             )
 
-    async def create_minigame(self, data: MinigameCreateReq):
+    async def create_minigame_fast(self, data: CreateStageFast):
+        async with self.session.begin():
+            # 미니게임 스테이지 생성
+            await self.minigame_repository.save(
+                Minigame(
+                    stage_id=data.stageId,
+                    is_active_coin_toss=data.miniGame.isCoinTossActive,
+                    coin_toss_max_betting_point=data.miniGame.coinTossMaxBettingPoint,
+                    coin_toss_min_betting_point=data.miniGame.coinTossMinBettingPoint,
+                    coin_toss_default_ticket_amount=data.miniGame.coinTossInitialTicketCount
+                )
+            )
+
+    async def create_minigame_official(self, data: CreateStageOfficial):
         async with self.session.begin():
             return await self.minigame_repository.save(
                 Minigame(
-                    stage_id=data.stage_id,
-                    is_active_plinko=data.is_active_plinko,
-                    is_active_coin_toss=data.is_active_coin_toss,
-                    is_active_yavarwee=data.is_active_yavarwee,
-                    coin_toss_max_betting_point=data.coin_toss_max_betting_point,
-                    coin_toss_min_betting_point=data.coin_toss_min_betting_point,
-                    yavarwee_max_betting_point=data.yavarwee_max_betting_point,
-                    yavarwee_min_betting_point=data.yavarwee_min_betting_point,
-                    plinko_max_betting_point=data.plinko_max_betting_point,
-                    plinko_min_betting_point=data.plinko_min_betting_point,
+                    stage_id=data.stageId,
+
+                    is_active_coin_toss=data.miniGame.coinToss.isActive,
+                    is_active_plinko_toss=data.miniGame.plinko.isActive,
+                    is_active_yavarwee=data.miniGame.yavarwee.isActive,
+
+                    coin_toss_default_ticket_amount=data.miniGame.coinToss.initialTicketCount,
+                    yavarwee_default_ticket_amount=data.miniGame.yavarwee.initialTicketCount,
+                    plinko_default_ticket_amount=data.miniGame.plinko.initialTicketCount,
+
+                    coin_toss_max_betting_point=data.miniGame.coinToss.maxBettingPoint,
+                    coin_toss_min_betting_point=data.miniGame.coinToss.minBettingPoint,
+
+                    yavarwee_max_betting_point=data.miniGame.yavarwee.maxBettingPoint,
+                    yavarwee_min_betting_point=data.miniGame.yavarwee.minBettingPoint,
+
+                    plinko_max_betting_point=data.miniGame.plinko.maxBettingPoint,
+                    plinko_min_betting_point=data.miniGame.plinko.minBettingPoint,
                 )
             )
 

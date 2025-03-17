@@ -1,10 +1,7 @@
 from typing import Optional
-from uuid import UUID
 
 from sqlalchemy import Column, BigInteger
 from sqlmodel import SQLModel, Field
-
-from src.minigame.domain.model.minigame import MinigameBetStatus
 
 
 class Ticket(SQLModel, table=True):
@@ -14,7 +11,5 @@ class Ticket(SQLModel, table=True):
     coin_toss_ticket_amount: int = Field(sa_column=Column(BigInteger(), default=0))
     plinko_ticket_amount: int = Field(sa_column=Column(BigInteger(), default=0))
     yavarwee_ticket_amount: int = Field(sa_column=Column(BigInteger(), default=0))
-    uuid: UUID = Field(unique=True)
-    status: MinigameBetStatus
 
     __tablename__ = 'tbl_minigame_ticket'

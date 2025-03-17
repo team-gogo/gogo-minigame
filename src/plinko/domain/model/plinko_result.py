@@ -15,7 +15,7 @@ class PlinkoResult(SQLModel, table=True):
     bet_point: int = Field(sa_column=Column(BigInteger()))
     result: float
     point: int = Field(sa_column=Column(BigInteger()))
-    uuid: UUID = Field(unique=True)
+    uuid: str = Field(unique=True)
     status: MinigameBetStatus
 
     __tablename__ = 'tbl_plinko_result'
