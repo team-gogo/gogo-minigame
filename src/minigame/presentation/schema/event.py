@@ -1,7 +1,18 @@
+from enum import Enum
+
 from pydantic import BaseModel
 
 
-class MinigameAdditionPoint(BaseModel):
+class GameType(Enum):
+    YAVARWEE = 'YAVARWEE'
+    PLINKO = 'PLINKO'
+    COINTOSS = 'COINTOSS'
+
+
+class MinigameBetCompleted(BaseModel):
     id: str
-    point: int
-    user_id: int
+    earnedPoint: int
+    lostedPoint: int
+    studentId: int
+    stageId: int
+    gameType: GameType

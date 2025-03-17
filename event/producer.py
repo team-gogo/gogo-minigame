@@ -27,3 +27,5 @@ class EventProducer:
             value=json.dumps(value.dict()).encode('utf-8'),
         )
         logging.info(f'Kafka producer Send {topic} value: {value}')
+
+
