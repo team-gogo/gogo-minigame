@@ -14,7 +14,7 @@ router = APIRouter()
 async def get_minigame_ticket(
         stage_id: int,
         request_user_id: Annotated[int, Header()],
-        request_user_authority: Annotated[str, Depends(authority_student)],
+        authority: Annotated[str, Depends(authority_student)],
     session: Annotated[AsyncSession, Depends(get_session)]
 ):
     return await TicketService(session).get_ticket_amount(request_user_id, stage_id)

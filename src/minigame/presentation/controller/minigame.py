@@ -17,7 +17,4 @@ async def minigame_active_game(
         authority: Annotated[str, Depends(authority_student)],
         session: Annotated[AsyncSession, Depends(get_session)]
 ):
-    if authority != 'STUDENT':
-        raise HTTPException(status_code=403)
-
     return await MinigameService(session).get_active_minigame(stage_id)
