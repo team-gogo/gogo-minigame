@@ -1,8 +1,6 @@
 from enum import Enum
 
-from fastapi import Header
-from starlette.exceptions import WebSocketException
-from starlette.status import WS_1008_POLICY_VIOLATION
+from fastapi import Header, HTTPException, status
 
 
 class Role(Enum):
@@ -13,5 +11,5 @@ class Role(Enum):
 
 def authority_student(request_user_authority: str = Header(...)):
     if request_user_authority not in (Role.USER.value, Role.STAFF.value):
-        raise WebSocketException(code=WS_1008_POLICY_VIOLATION, reason='Authority must be "USER"')
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Authority must be USER')
     return request_user_authority
