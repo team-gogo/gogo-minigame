@@ -70,7 +70,7 @@ class CoinTossMinigameBetServiceImpl(MinigameBetService):
                 is_win=result,
                 student_id=user_id,
                 stage_id=stage_id,
-                game_type=GameType.COINTOSS.value
+                game_type=GameType.COINTOSS
             )
 
             return CoinTossBetRes(

@@ -1,5 +1,6 @@
 import json
 import logging
+from typing import Optional
 
 from aiokafka import AIOKafkaProducer
 from pydantic import BaseModel
@@ -8,7 +9,7 @@ from config import KAFKA_HOST, KAFKA_PORT
 
 
 class EventProducer:
-    producer: AIOKafkaProducer
+    producer: Optional[AIOKafkaProducer] = None
 
     @staticmethod
     async def get_producer():

@@ -75,7 +75,7 @@ class YavarweeMinigameBetServiceImpl(MinigameBetService):
                 is_win=True,
                 student_id=user_id,
                 stage_id=stage_id,
-                game_type=GameType.COINTOSS.value
+                game_type=GameType.YAVARWEE.value
             )
 
             await self.yavarwee_repository.save(

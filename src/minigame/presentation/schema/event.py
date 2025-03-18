@@ -15,4 +15,4 @@ class MinigameBetCompleted(BaseModel):
     lostedPoint: int
     studentId: int
     stageId: int
-    gameType: GameType
+    gameType: str
