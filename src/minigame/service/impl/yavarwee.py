@@ -7,10 +7,8 @@ from py_eureka_client.eureka_client import do_service_async
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from db import get_session
-from event.producer import EventProducer
 from event.publisher import EventPublisher
-from minigame.presentation.schema.event import GameType
-from plinko.domain.model.plinko_result import PlinkoResult
+from src.minigame.presentation.schema.event import GameType
 from src.minigame.domain.model.minigame import MinigameBetStatus
 from src.minigame.service.validation import BetValidationService
 from src.minigame.service.bet import MinigameBetService

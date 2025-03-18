@@ -10,7 +10,7 @@ from starlette.exceptions import WebSocketException
 
 from db import get_session
 from event.publisher import EventPublisher
-from minigame.presentation.schema.event import GameType
+from src.minigame.presentation.schema.event import GameType
 from src.minigame.domain.model.minigame import MinigameBetStatus
 from src.minigame.service.validation import BetValidationService
 from src.plinko.presentation.schema.plinko import PlinkoBetReq
@@ -19,7 +19,6 @@ from src.plinko.domain.repository.plinko import PlinkoResultRepository
 from src.plinko.domain.model.plinko_result import PlinkoResult
 from src.plinko.presentation.schema.plinko import PlinkoBetRes
 from src.minigame.service.bet import MinigameBetService
-from event.producer import EventProducer
 from src.ticket.domain.repository.ticket import TicketRepository
 from src.ticket.service.ticket import TicketService
 
