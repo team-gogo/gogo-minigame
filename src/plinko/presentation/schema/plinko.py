@@ -18,3 +18,4 @@ class PlinkoBetReq(BaseModel):
 class PlinkoBetRes(BaseModel):
     amount: float
     path: List[str]
+    multi: int

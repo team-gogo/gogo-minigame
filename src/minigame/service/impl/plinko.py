@@ -76,7 +76,8 @@ class PlinkoMinigameBetServiceImpl(MinigameBetService):
                 step = random.choice([-1, 1])
                 path.append(step)
                 move += step
-            result = row[8 + (move // 2)]
+            index_ = 8 + (move // 2)
+            result = row[index_]
 
             # 배팅후 포인트 계산
             plinko_point = bet_amount * result
@@ -112,4 +113,5 @@ class PlinkoMinigameBetServiceImpl(MinigameBetService):
             return PlinkoBetRes(
                 amount=result,
                 path=['L' if p==-1 else 'R' for p in path],
+                multi=index_
             )
