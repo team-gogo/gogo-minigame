@@ -9,16 +9,16 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from starlette.exceptions import WebSocketException
 
 from db import get_session
+from event.publisher import EventPublisher
+from src.minigame.presentation.schema.event import GameType
 from src.minigame.domain.model.minigame import MinigameBetStatus
 from src.minigame.service.validation import BetValidationService
-from src.minigame.presentation.schema.event import MinigameAdditionPoint
 from src.plinko.presentation.schema.plinko import PlinkoBetReq
 from src.minigame.domain.repository.minigame import MinigameRepository
 from src.plinko.domain.repository.plinko import PlinkoResultRepository
 from src.plinko.domain.model.plinko_result import PlinkoResult
 from src.plinko.presentation.schema.plinko import PlinkoBetRes
 from src.minigame.service.bet import MinigameBetService
-from event.producer import EventProducer
 from src.ticket.domain.repository.ticket import TicketRepository
 from src.ticket.service.ticket import TicketService
 
@@ -80,29 +80,21 @@ class PlinkoMinigameBetServiceImpl(MinigameBetService):
 
             # 배팅후 포인트 계산
             plinko_point = bet_amount * result
+            changed_point = plinko_point - bet_amount
 
-            # Event 발급
-            addition_point = bet_amount * result - bet_amount
-            if addition_point > 0:
-                await EventProducer.create_event(
-                    topic='minigame_bet_addition_point',
-                    key=uuid_,
-                    value=MinigameAdditionPoint(
-                        id=uuid_,
-                        point=addition_point,
-                        user_id=user_id,
-                    )
-                )
-            else:
-                await EventProducer.create_event(
-                    topic='minigame_bet_minus_point',
-                    key=uuid_,
-                    value=MinigameAdditionPoint(
-                        id=uuid_,
-                        point=-addition_point,
-                        user_id=user_id,
-                    )
-                )
+            earned_point = changed_point if changed_point > 0 else 0
+            losted_point = changed_point if changed_point < 0 else 0
+            is_win = True if earned_point != 0 else False
+
+            await EventPublisher.minigame_bet_completed(
+                uuid_=uuid_,
+                earned_point=earned_point,
+                losted_point=losted_point,
+                is_win=is_win,
+                student_id=user_id,
+                stage_id=stage_id,
+                game_type=GameType.PLINKO.value
+            )
 
             await self.plinko_result_repository.save(
                 PlinkoResult(

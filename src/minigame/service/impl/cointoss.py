@@ -1,6 +1,5 @@
 import json
 import random
-import time
 import uuid
 
 from fastapi import status, WebSocketException
@@ -8,13 +7,11 @@ from py_eureka_client.eureka_client import do_service_async
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from db import get_session
-from event.producer import EventProducer
-from src.minigame.domain.model.minigame import MinigameBetStatus
+from event.publisher import EventPublisher
+from src.minigame.presentation.schema.event import GameType
 from src.minigame.service.validation import BetValidationService
-from src.minigame.presentation.schema.event import MinigameAdditionPoint
 from src.cointoss.presentation.schema.cointoss import CoinTossBetReq
 from src.minigame.service.bet import MinigameBetService
-from src.cointoss.domain.model.coin_toss_result import CoinTossResult
 from src.cointoss.domain.repository.coin_toss import CoinTossResultRepository
 from src.minigame.domain.repository.minigame import MinigameRepository
 from src.ticket.domain.repository.ticket import TicketRepository
@@ -62,45 +59,21 @@ class CoinTossMinigameBetServiceImpl(MinigameBetService):
 
             uuid_ = str(uuid.uuid4())
 
-            #     "error": "unsupported operand type(s) for &: 'str' and 'int'" 해결
+            result = random.choice([True, False])
+            earned_point = bet_amount if result else 0
+            losted_point = bet_amount if not result else 0
 
-            if result := random.choice([True, False]):
-                await EventProducer.create_event(
-                    topic='minigame_bet_addition_point',
-                    key=uuid_,
-                    value=MinigameAdditionPoint(
-                        id=uuid_,
-                        point=bet_amount,
-                        user_id=user_id,
-                    )
-                )
-                after_point = before_point + bet_amount
-            else:
-                await EventProducer.create_event(
-                    topic='minigame_bet_minus_point',
-                    key=uuid_,
-                    value=MinigameAdditionPoint(
-                        id=uuid_,
-                        point=bet_amount,
-                        user_id=user_id,
-                    )
-                )
-                after_point = before_point - bet_amount
-
-            await self.coin_toss_result_repository.save(
-                CoinTossResult(
-                    minigame_id=int(minigame.minigame_id),
-                    student_id=int(user_id),
-                    timestamp=int(time.time()),
-                    bet_point=bet_amount,
-                    result=result,
-                    point=after_point,
-                    uuid=uuid_,
-                    status=MinigameBetStatus.CONFIRMED
-                )
+            await EventPublisher.minigame_bet_completed(
+                uuid_=uuid_,
+                earned_point=earned_point,
+                losted_point=losted_point,
+                is_win=result,
+                student_id=user_id,
+                stage_id=stage_id,
+                game_type=GameType.COINTOSS
             )
 
             return CoinTossBetRes(
                 result=result,
-                amount=after_point
+                amount=data.amount + earned_point + losted_point
             )

@@ -7,10 +7,10 @@ from py_eureka_client.eureka_client import do_service_async
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from db import get_session
-from event.producer import EventProducer
+from event.publisher import EventPublisher
+from src.minigame.presentation.schema.event import GameType
 from src.minigame.domain.model.minigame import MinigameBetStatus
 from src.minigame.service.validation import BetValidationService
-from src.minigame.presentation.schema.event import MinigameAdditionPoint
 from src.minigame.service.bet import MinigameBetService
 from src.yavarwee.domain.model.yavarwee_result import YavarweeResult
 from src.yavarwee.domain.repository.yavarwee import YavarweeResultRepository
@@ -66,18 +66,17 @@ class YavarweeMinigameBetServiceImpl(MinigameBetService):
             # 티켓 감소
             ticket.plinko_ticket_amount -= 1
 
-            yavarwee_point = bet_amount * YAVARWEE_ROUND_VALUE[data.round - 1] - bet_amount
+            earned_point = bet_amount * YAVARWEE_ROUND_VALUE[data.round - 1] - bet_amount
 
-            await EventProducer.create_event(
-                topic='minigame_bet_addition_point',
-                key=str(data.uuid),
-                value=MinigameAdditionPoint(
-                    id=str(data.uuid),
-                    point=yavarwee_point,
-                    user_id=user_id,
-                )
+            await EventPublisher.minigame_bet_completed(
+                uuid_=data.uuid,
+                earned_point=earned_point,
+                losted_point=0,
+                is_win=True,
+                student_id=user_id,
+                stage_id=stage_id,
+                game_type=GameType.YAVARWEE.value
             )
-
 
             await self.yavarwee_repository.save(
                 YavarweeResult(
@@ -86,13 +85,13 @@ class YavarweeMinigameBetServiceImpl(MinigameBetService):
                     timestamp=int(time.time()),
                     bet_point=bet_amount,
                     yavarwee_stage=data.round,
-                    point=yavarwee_point,
+                    point=earned_point,
                     uuid=str(data.uuid),
                     status=MinigameBetStatus.CONFIRMED
                 )
             )
 
-        after_point = before_point + yavarwee_point
+        after_point = before_point + earned_point
 
         return YavarweeBetRes(
             amount=after_point
