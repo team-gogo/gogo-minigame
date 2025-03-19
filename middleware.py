@@ -1,3 +1,4 @@
+import json
 import uuid
 import time
 import logging
@@ -21,10 +22,10 @@ class LoggingMiddleware(BaseHTTPMiddleware):
             f"IP: {request.client.host}, "
             f"URI: {request.url.path}, "
             f"Http-Method: {request.method}, "
-            f"Params: {dict(request.query_params)}, "
+            f"Params: {json.dumps(dict(request.query_params), separators=(',', ':'))}, "
             f"Content-Type: {request.headers.get('content-type')}, "
             f"User-Agent: {request.headers.get('user-agent')}, "
-            f"Request-Body: {request_body.decode('utf-8')}"
+            f"Request-Body: {json.dumps(json.loads(request_body.decode('utf-8')), separators=(',', ':'))}"
         )
 
         response = await call_next(request)
@@ -38,7 +39,7 @@ class LoggingMiddleware(BaseHTTPMiddleware):
             f"Status-Code: {response.status_code}, "
             f"Content-Type: {response.headers.get('content-type')}, "
             f"Response Time: {process_time}ms, "
-            f"Response-Body: {response_body[0].decode('utf-8')}"
+            f"Response-Body: {json.dumps(json.loads(request_body.decode('utf-8')), separators=(',', ':'))}"
         )
 
         return response

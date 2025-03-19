@@ -42,7 +42,7 @@ if __name__ == '__main__':
     try:
         init_eureka()
         asyncio.run(create_db())
-        uvicorn.run(app, host='0.0.0.0', port=8086, log_level='warning')
+        uvicorn.run(app, host='0.0.0.0', port=8086, log_level='info', access_log=False)
     except Exception as e:
         print(e)
         exit(1)
