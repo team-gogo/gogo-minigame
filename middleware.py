@@ -32,6 +32,7 @@ class LoggingMiddleware(BaseHTTPMiddleware):
 
         response_body = [chunk async for chunk in response.body_iterator]
         response.body_iterator = iterate_in_threadpool(iter(response_body))
+        response_body_str = b"".join(response_body).decode('utf-8')
 
         process_time = round((time.time() - start_time) * 1000, 2)
         logger.info(
@@ -39,7 +40,7 @@ class LoggingMiddleware(BaseHTTPMiddleware):
             f"Status-Code: {response.status_code}, "
             f"Content-Type: {response.headers.get('content-type')}, "
             f"Response Time: {process_time}ms, "
-            f"Response-Body: {json.dumps(json.loads(request_body.decode('utf-8')), separators=(',', ':'))}"
+            f"Response-Body: {json.dumps(json.loads(response_body_str), separators=(',', ':'))}"
         )
 
         return response
