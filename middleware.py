@@ -8,10 +8,13 @@ from starlette.concurrency import iterate_in_threadpool
 from starlette.middleware.base import BaseHTTPMiddleware
 
 logger = logging.getLogger('GOGO-MiniGame Logger')
-
+no_logging_path = ['/minigame/health', '/favicon.ico']
 
 class LoggingMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
+        if request.url.path in no_logging_path:
+            return await call_next(request)
+
         log_id = str(uuid.uuid4())
         start_time = time.time()
 

@@ -6,8 +6,10 @@ from fastapi import status, HTTPException
 from py_eureka_client.eureka_client import do_service_async
 from sqlmodel.ext.asyncio.session import AsyncSession
 
+from src.cointoss.domain.model.coin_toss_result import CoinTossResult
 from db import get_session
 from event.publisher import EventPublisher
+from src.minigame.domain.model.minigame import MinigameBetStatus
 from src.minigame.presentation.schema.event import GameType
 from src.minigame.service.validation import BetValidationService
 from src.cointoss.presentation.schema.cointoss import CoinTossBetReq
@@ -71,6 +73,18 @@ class CoinTossMinigameBetServiceImpl(MinigameBetService):
                 student_id=user_id,
                 stage_id=stage_id,
                 game_type=GameType.COINTOSS
+            )
+
+            await self.coin_toss_result_repository.save(
+                CoinTossResult(
+                    minigame_id=int(minigame.minigame_id),
+                    student_id=int(user_id),
+                    bet_point=bet_amount,
+                    result=result,
+                    point=earned_point+losted_point,
+                    uuid=uuid_,
+                    status=MinigameBetStatus.CONFIRMED
+                )
             )
 
             return CoinTossBetRes(
