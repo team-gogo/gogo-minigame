@@ -29,13 +29,13 @@ class Minigame(SQLModel, table=True):
 
     status: MinigameStatus = Field(default=MinigameStatus.PENDING)
 
-    coin_toss_max_betting_point: Optional[int] = Field(default=None)
-    coin_toss_min_betting_point: Optional[int] = Field(default=None)
+    coin_toss_max_betting_point: Optional[int] = Field(nullable=True)
+    coin_toss_min_betting_point: Optional[int] = Field(nullable=True)
 
-    yavarwee_max_betting_point: Optional[int] = Field(default=None)
-    yavarwee_min_betting_point: Optional[int] = Field(default=None)
+    yavarwee_max_betting_point: Optional[int] = Field(nullable=True)
+    yavarwee_min_betting_point: Optional[int] = Field(nullable=True)
 
-    plinko_max_betting_point: Optional[int] = Field(default=None)
-    plinko_min_betting_point: Optional[int] = Field(default=None)
+    plinko_max_betting_point: Optional[int] = Field(nullable=True)
+    plinko_min_betting_point: Optional[int] = Field(nullable=True)
 
     __tablename__ = 'tbl_minigame'

@@ -81,7 +81,6 @@ class YavarweeMinigameBetServiceImpl(MinigameBetService):
                 YavarweeResult(
                     minigame_id=minigame.minigame_id,
                     student_id=user_id,
-                    timestamp=int(time.time()),
                     bet_point=bet_amount,
                     yavarwee_stage=data.round,
                     point=earned_point,

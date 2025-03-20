@@ -100,7 +100,6 @@ class PlinkoMinigameBetServiceImpl(MinigameBetService):
                 PlinkoResult(
                     minigame_id=int(minigame.minigame_id),
                     student_id=int(user_id),
-                    timestamp=int(time.time()),
                     bet_point=bet_amount,
                     point=plinko_point,
                     result=result,

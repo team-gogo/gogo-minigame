@@ -1,6 +1,5 @@
 import asyncio
 import logging
-import sys
 
 import uvicorn
 from fastapi import FastAPI
