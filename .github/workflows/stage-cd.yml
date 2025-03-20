@@ -1,0 +1,34 @@
+name: GOGO-MiniGame Stage CD
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Deploy
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.STAGE_SSH_HOST }}
+          port: ${{ secrets.STAGE_SSH_PORT }}
+          username: ${{ secrets.STAGE_SSH_USERNAME }}
+          password: ${{ secrets.STAGE_SSH_PASSWORD }}
+          script: |
+            set -e
+            mkdir -p /home/ubuntu/gogo-minigame
+            cd /home/ubuntu/gogo-minigame
+            
+            if [ ! -d ".git" ]; then
+              git clone -b develop https://github.com/team-gogo/gogo-minigame .
+            else
+              git pull origin develop
+            fi
+            
+            docker-compose up --build -d gogo-minigame-stage
