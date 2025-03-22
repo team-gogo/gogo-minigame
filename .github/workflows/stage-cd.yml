@@ -31,11 +31,13 @@ jobs:
               git pull origin develop
             fi
             
-            docker-compose up --build -d gogo-minigame-stage
+            docker build . -t gogo-minigame-stage
             
-            docker container prune -f
-            docker image prune -af
+            docker stop gogo-minigame-stage || true
+            docker rm gogo-minigame-stage || true
             
+            docker run -d -p 8086:8086 --name gogo-minigame-stage gogo-minigame-stage
+
       - name: SSH Success Notification
         if: success()
         uses: sarisia/actions-status-discord@v1
