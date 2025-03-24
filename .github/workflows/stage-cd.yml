@@ -23,7 +23,7 @@ jobs:
           script: |
             set -e
             
-            ./conn
+            ssh -i gogo-stage.pem -o StrictHostKeyChecking=no ubuntu@${{ secrets.STAGE_TARGET_HOST }} << 'EOF'
             
             mkdir -p /home/ubuntu/gogo-minigame
             cd /home/ubuntu/gogo-minigame
