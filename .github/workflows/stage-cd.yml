@@ -19,9 +19,12 @@ jobs:
           host: ${{ secrets.STAGE_SSH_HOST }}
           port: ${{ secrets.STAGE_SSH_PORT }}
           username: ${{ secrets.STAGE_SSH_USERNAME }}
-          password: ${{ secrets.STAGE_SSH_PASSWORD }}
+          key: ${{ secrets.STAGE_SSH_KEY }}
           script: |
             set -e
+            
+            ./conn
+            
             mkdir -p /home/ubuntu/gogo-minigame
             cd /home/ubuntu/gogo-minigame
             
@@ -36,7 +39,7 @@ jobs:
             docker stop gogo-minigame-stage || true
             docker rm gogo-minigame-stage || true
             
-            docker run -d -p 8086:8086 --name gogo-minigame-stage gogo-minigame-stage
+            docker run -d -p 8086:8086 --name gogo-minigame-stage --add-host host.docker.internal:host-gateway gogo-minigame-stage
 
       - name: SSH Success Notification
         if: success()
