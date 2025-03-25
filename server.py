@@ -40,7 +40,9 @@ app.include_router(minigame_router)
 if __name__ == '__main__':
     try:
         init_eureka()
+        logging.INFO('INFO: init erueka')
         asyncio.run(create_db())
+        logging.INFO('INFO: create db')
         uvicorn.run(app, host='0.0.0.0', port=8086, log_level='info', access_log=False)
     except Exception as e:
         print(e)
