@@ -34,12 +34,12 @@ jobs:
               git pull origin develop
             fi
             
-            docker build . -t gogo-minigame
+            docker build . -t gogo-minigame-stage
             
-            docker stop gogo-minigame || true
-            docker rm gogo-minigame || true
+            docker stop gogo-minigame-stage || true
+            docker rm gogo-minigame-stage || true
             
-            docker run -d -p 8086:8086 --name gogo-minigame --add-host host.docker.internal:host-gateway gogo-minigame
+            docker run -d -p 8086:8086 --add-host host.docker.internal:host-gateway --name gogo-minigame-stage gogo-minigame-stage
 
       - name: SSH Success Notification
         if: success()
