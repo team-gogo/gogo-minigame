@@ -10,6 +10,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 logger = logging.getLogger('GOGO-MiniGame Logger')
 no_logging_path = ['/minigame/health', '/favicon.ico']
 
+
 class LoggingMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         if request.url.path in no_logging_path:
@@ -19,6 +20,10 @@ class LoggingMiddleware(BaseHTTPMiddleware):
         start_time = time.time()
 
         request_body = await request.body()
+        try:
+            request_body_str = json.dumps(json.loads(request_body.decode('utf-8')), separators=(',', ':'))
+        except json.decoder.JSONDecodeError:
+            request_body_str = ''
 
         logger.info(
             f"Log-ID: {log_id}, "
@@ -28,7 +33,7 @@ class LoggingMiddleware(BaseHTTPMiddleware):
             f"Params: {json.dumps(dict(request.query_params), separators=(',', ':'))}, "
             f"Content-Type: {request.headers.get('content-type')}, "
             f"User-Agent: {request.headers.get('user-agent')}, "
-            f"Request-Body: {json.dumps(json.loads(request_body.decode('utf-8')), separators=(',', ':'))}"
+            f"Request-Body: {request_body_str}"
         )
 
         response = await call_next(request)
