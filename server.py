@@ -1,5 +1,6 @@
 import asyncio
 import logging
+from contextlib import asynccontextmanager
 
 import uvicorn
 from fastapi import FastAPI
@@ -21,15 +22,18 @@ logging.basicConfig(level=logging.INFO)
 app.add_middleware(LoggingMiddleware)
 
 
+
 @app.get('/minigame/health')
 async def root():
     return 'GOGO Minigame Service OK'
 
 
-@app.on_event('startup')
-async def startup():
-    asyncio.create_task(consume())
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    asyncio.create_task(consume())  # 비동기 태스크 실행
+    yield
 
+app = FastAPI(lifespan=lifespan)
 
 app.include_router(coin_toss_router)
 app.include_router(plinko_router)
@@ -40,9 +44,9 @@ app.include_router(minigame_router)
 if __name__ == '__main__':
     try:
         init_eureka()
-        logging.INFO('INFO: init erueka')
+        logging.info('init eureka')
         asyncio.run(create_db())
-        logging.INFO('INFO: create db')
+        logging.info('create db')
         uvicorn.run(app, host='0.0.0.0', port=8086, log_level='info', access_log=False)
     except Exception as e:
         print(e)
