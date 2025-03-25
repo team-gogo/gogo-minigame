@@ -15,18 +15,6 @@ from src.yavarwee.presentation.controller.yavarwee import router as yavarwee_rou
 from src.ticket.presentation.controller.ticket import router as ticket_router
 from src.minigame.presentation.controller.minigame import router as minigame_router
 
-app = FastAPI()
-
-logging.basicConfig(level=logging.INFO)
-
-app.add_middleware(LoggingMiddleware)
-
-
-
-@app.get('/minigame/health')
-async def root():
-    return 'GOGO Minigame Service OK'
-
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -35,11 +23,22 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
+logging.basicConfig(level=logging.INFO)
+
+app.add_middleware(LoggingMiddleware)
+
 app.include_router(coin_toss_router)
 app.include_router(plinko_router)
 app.include_router(yavarwee_router)
 app.include_router(ticket_router)
 app.include_router(minigame_router)
+
+@app.get('/minigame/health')
+async def root():
+    return 'GOGO Minigame Service OK'
+
+
+
 
 if __name__ == '__main__':
     try:
