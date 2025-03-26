@@ -81,7 +81,7 @@ class CoinTossMinigameBetServiceImpl(MinigameBetService):
                     student_id=int(user_id),
                     bet_point=bet_amount,
                     result=result,
-                    point=earned_point+losted_point,
+                    point=earned_point-losted_point,
                     uuid=uuid_,
                     status=MinigameBetStatus.CONFIRMED
                 )
@@ -89,5 +89,5 @@ class CoinTossMinigameBetServiceImpl(MinigameBetService):
 
             return CoinTossBetRes(
                 result=result,
-                amount=data.amount + earned_point + losted_point
+                amount=data.amount + earned_point - losted_point
             )

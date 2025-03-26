@@ -83,7 +83,7 @@ class PlinkoMinigameBetServiceImpl(MinigameBetService):
             changed_point = plinko_point - bet_amount
 
             earned_point = changed_point if changed_point > 0 else 0
-            losted_point = changed_point if changed_point < 0 else 0
+            losted_point = (changed_point if changed_point < 0 else 0) * -1
             is_win = True if earned_point != 0 else False
 
             await EventPublisher.minigame_bet_completed(
@@ -101,7 +101,7 @@ class PlinkoMinigameBetServiceImpl(MinigameBetService):
                     minigame_id=int(minigame.minigame_id),
                     student_id=int(user_id),
                     bet_point=bet_amount,
-                    point=plinko_point,
+                    point=earned_point-losted_point,
                     result=result,
                     uuid=uuid_,
                     status=MinigameBetStatus.CONFIRMED

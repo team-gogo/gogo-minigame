@@ -16,3 +16,4 @@ class MinigameBetCompleted(BaseModel):
     studentId: int
     stageId: int
     gameType: str
+    isWin: bool
