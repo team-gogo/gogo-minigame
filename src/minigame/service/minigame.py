@@ -35,7 +35,8 @@ class MinigameService:
                     is_active_coin_toss=data.miniGame.isCoinTossActive,
                     coin_toss_max_betting_point=data.miniGame.coinTossMaxBettingPoint,
                     coin_toss_min_betting_point=data.miniGame.coinTossMinBettingPoint,
-                    coin_toss_default_ticket_amount=data.miniGame.coinTossInitialTicketCount
+                    coin_toss_default_ticket_amount=data.miniGame.coinTossInitialTicketCount,
+                    coin_toss_initial_ticket_count=data.miniGame.coinTossInitialTicketCount,
                 )
             )
 
@@ -55,12 +56,15 @@ class MinigameService:
 
                     coin_toss_max_betting_point=data.miniGame.coinToss.maxBettingPoint,
                     coin_toss_min_betting_point=data.miniGame.coinToss.minBettingPoint,
+                    coin_toss_initial_ticket_count=data.miniGame.coinToss.initialTicketCount,
 
                     yavarwee_max_betting_point=data.miniGame.yavarwee.maxBettingPoint,
                     yavarwee_min_betting_point=data.miniGame.yavarwee.minBettingPoint,
+                    yavarwee_initial_ticket_count=data.miniGame.yavarwee.initialTicketCount,
 
                     plinko_max_betting_point=data.miniGame.plinko.maxBettingPoint,
                     plinko_min_betting_point=data.miniGame.plinko.minBettingPoint,
+                    plinko_initial_ticket_count=data.miniGame.plinko.initialTicketCount,
                 )
             )
 
