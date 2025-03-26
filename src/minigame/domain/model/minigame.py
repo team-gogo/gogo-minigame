@@ -31,11 +31,14 @@ class Minigame(SQLModel, table=True):
 
     coin_toss_max_betting_point: Optional[int] = Field(nullable=True)
     coin_toss_min_betting_point: Optional[int] = Field(nullable=True)
+    coin_toss_initial_ticket_count: Optional[int] = Field(nullable=True)
 
     yavarwee_max_betting_point: Optional[int] = Field(nullable=True)
     yavarwee_min_betting_point: Optional[int] = Field(nullable=True)
+    yavarwee_initial_ticket_count: Optional[int] = Field(nullable=True)
 
     plinko_max_betting_point: Optional[int] = Field(nullable=True)
     plinko_min_betting_point: Optional[int] = Field(nullable=True)
+    plinko_initial_ticket_count: Optional[int] = Field(nullable=True)
 
     __tablename__ = 'tbl_minigame'

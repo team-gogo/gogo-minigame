@@ -19,6 +19,7 @@ class CreateOfficialStageGameDetails(BaseModel):
     isActive: bool
     maxBettingPoint: Optional[int] = None
     minBettingPoint: Optional[int] = None
+    initialTicketCount: Optional[int] = None
 
 
 class CreateOfficialStageGameType(BaseModel):
