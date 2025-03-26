@@ -42,8 +42,8 @@ class PlinkoMinigameBetServiceImpl(MinigameBetService):
 
             # stage_id로 미니게임 조회
             minigame = await self.minigame_repository.find_by_stage_id(stage_id)
-            if not minigame.is_active_plinko:
-                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Minigame not found')
+            if minigame is None or not minigame.is_active_plinko:
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Minigame not found or Not Available')
 
             await BetValidationService.validate_minigame_status(minigame)
 
@@ -83,7 +83,7 @@ class PlinkoMinigameBetServiceImpl(MinigameBetService):
             changed_point = plinko_point - bet_amount
 
             earned_point = changed_point if changed_point > 0 else 0
-            losted_point = changed_point if changed_point < 0 else 0
+            losted_point = (changed_point if changed_point < 0 else 0) * -1
             is_win = True if earned_point != 0 else False
 
             await EventPublisher.minigame_bet_completed(
@@ -101,7 +101,7 @@ class PlinkoMinigameBetServiceImpl(MinigameBetService):
                     minigame_id=int(minigame.minigame_id),
                     student_id=int(user_id),
                     bet_point=bet_amount,
-                    point=plinko_point,
+                    point=earned_point-losted_point,
                     result=result,
                     uuid=uuid_,
                     status=MinigameBetStatus.CONFIRMED

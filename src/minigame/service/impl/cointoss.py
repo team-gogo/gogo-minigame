@@ -35,8 +35,8 @@ class CoinTossMinigameBetServiceImpl(MinigameBetService):
 
             # stage_id로 미니게임 조회
             minigame = await self.minigame_repository.find_by_stage_id(stage_id)
-            if not minigame.is_active_coin_toss:
-                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Minigame not found')
+            if minigame is None or not minigame.is_active_coin_toss:
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Minigame not found or Not Available')
 
             await BetValidationService.validate_minigame_status(minigame)
 
@@ -81,7 +81,7 @@ class CoinTossMinigameBetServiceImpl(MinigameBetService):
                     student_id=int(user_id),
                     bet_point=bet_amount,
                     result=result,
-                    point=earned_point+losted_point,
+                    point=earned_point-losted_point,
                     uuid=uuid_,
                     status=MinigameBetStatus.CONFIRMED
                 )
@@ -89,5 +89,5 @@ class CoinTossMinigameBetServiceImpl(MinigameBetService):
 
             return CoinTossBetRes(
                 result=result,
-                amount=data.amount + earned_point + losted_point
+                amount=data.amount + earned_point - losted_point
             )
