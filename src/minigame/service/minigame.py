@@ -1,5 +1,5 @@
 from sqlmodel.ext.asyncio.session import AsyncSession
-from fastapi import HTTPException
+from fastapi import HTTPException, status
 
 from event.schema.fast import CreateStageFast
 from event.schema.official import CreateStageOfficial
@@ -18,6 +18,8 @@ class MinigameService:
     async def get_active_minigame(self, stage_id):
         async with self.session.begin():
             minigame = await self.minigame_repository.find_by_stage_id(stage_id)
+            if minigame is None:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Minigame not found")
             return GetActiveMinigameRes(
                 isPlinkoActive=minigame.is_active_plinko,
                 isCoinTossActive=minigame.is_active_coin_toss,
