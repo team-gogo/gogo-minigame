@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="gogo_minigame@localhost" uuid="6d262910-5567-4ff3-91d6-d4b1a47e3410">
+    <data-source source="LOCAL" name="gogo_minigame@localhost" uuid="411eb8f0-8479-46c1-a4e5-f057e6ce498b">
       <driver-ref>postgresql</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.postgresql.Driver</jdbc-driver>
