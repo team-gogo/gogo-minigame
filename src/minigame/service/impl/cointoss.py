@@ -68,8 +68,8 @@ class CoinTossMinigameBetServiceImpl(MinigameBetService):
             uuid_ = str(uuid.uuid4())
 
             result = random.choice([True, False])
-            earned_point = bet_amount if result else 0
-            losted_point = bet_amount if not result else 0
+            earned_point = int(bet_amount if result else 0)
+            losted_point = int(bet_amount if not result else 0)
 
             await EventPublisher.minigame_bet_completed(
                 uuid_=uuid_,
@@ -84,7 +84,7 @@ class CoinTossMinigameBetServiceImpl(MinigameBetService):
             await self.coin_toss_result_repository.save(
                 CoinTossResult(
                     minigame_id=int(minigame.minigame_id),
-                    student_id=int(user_id),
+                    student_id=int(student_id),
                     bet_point=bet_amount,
                     result=result,
                     point=earned_point-losted_point,

@@ -85,11 +85,11 @@ class PlinkoMinigameBetServiceImpl(MinigameBetService):
             result = row[index_]
 
             # 배팅후 포인트 계산
-            plinko_point = bet_amount * result
-            changed_point = plinko_point - bet_amount
+            plinko_point = int(bet_amount * result)
+            changed_point = int(plinko_point - bet_amount)
 
-            earned_point = changed_point if changed_point > 0 else 0
-            losted_point = (changed_point if changed_point < 0 else 0) * -1
+            earned_point = int(changed_point if changed_point > 0 else 0)
+            losted_point = int((changed_point if changed_point < 0 else 0) * -1)
             is_win = True if earned_point != 0 else False
 
             await EventPublisher.minigame_bet_completed(
@@ -97,7 +97,7 @@ class PlinkoMinigameBetServiceImpl(MinigameBetService):
                 earned_point=earned_point,
                 losted_point=losted_point,
                 is_win=is_win,
-                student_id=user_id,
+                student_id=int(student_id),
                 stage_id=stage_id,
                 game_type=GameType.PLINKO.value
             )
