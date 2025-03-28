@@ -60,7 +60,7 @@ class CoinTossMinigameBetServiceImpl(MinigameBetService):
             ticket_amount = await self.ticket_service(await get_session()).get_ticket_amount(user_id=user_id, stage_id=stage_id)
             if ticket_amount is None or ticket_amount.coinToss <= 0:
                 raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Not enough ticket')
-            ticket = await self.ticket_repository.find_ticket_amount_by_stage_id_and_user_id(stage_id=stage_id, user_id=user_id)
+            ticket = await self.ticket_repository.find_ticket_amount_by_stage_id_and_student_id(stage_id=stage_id, student_id=student_id)
 
             # 티켓 감소
             ticket.coin_toss_ticket_amount -= 1
