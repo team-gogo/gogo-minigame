@@ -115,7 +115,7 @@ class PlinkoMinigameBetServiceImpl(MinigameBetService):
             )
 
             return PlinkoBetRes(
-                amount=result,
+                amount=changed_point + earned_point - losted_point,
                 path=['L' if p==-1 else 'R' for p in path],
                 multi=index_
             )
