@@ -71,7 +71,7 @@ class YavarweeMinigameBetServiceImpl(MinigameBetService):
             # 티켓 감소
             ticket.plinko_ticket_amount -= 1
 
-            earned_point = bet_amount * YAVARWEE_ROUND_VALUE[data.round - 1] - bet_amount
+            earned_point = int(bet_amount * YAVARWEE_ROUND_VALUE[data.round - 1] - bet_amount)
 
             await EventPublisher.minigame_bet_completed(
                 uuid_=data.uuid,
@@ -86,7 +86,7 @@ class YavarweeMinigameBetServiceImpl(MinigameBetService):
             await self.yavarwee_repository.save(
                 YavarweeResult(
                     minigame_id=minigame.minigame_id,
-                    student_id=user_id,
+                    student_id=int(student_id),
                     bet_point=bet_amount,
                     yavarwee_stage=data.round,
                     point=earned_point,
