@@ -76,7 +76,7 @@ class CoinTossMinigameBetServiceImpl(MinigameBetService):
                 earned_point=earned_point,
                 losted_point=losted_point,
                 is_win=result,
-                student_id=user_id,
+                student_id=student_id,
                 stage_id=stage_id,
                 game_type=GameType.COINTOSS
             )
