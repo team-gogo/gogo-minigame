@@ -7,7 +7,7 @@ class EventPublisher:
     @staticmethod
     async def minigame_bet_completed(uuid_, earned_point, losted_point, is_win, student_id, stage_id, game_type):
         await EventProducer.create_event(
-            topic='minigame_bet_addition_point',
+            topic='minigame_bet_completed',
             key=uuid_,
             value=MinigameBetCompleted(
                 id=uuid_,
