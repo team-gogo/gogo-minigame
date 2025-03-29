@@ -105,7 +105,7 @@ class PlinkoMinigameBetServiceImpl(MinigameBetService):
             await self.plinko_result_repository.save(
                 PlinkoResult(
                     minigame_id=int(minigame.minigame_id),
-                    student_id=int(user_id),
+                    student_id=int(student_id),
                     bet_point=bet_amount,
                     point=earned_point-losted_point,
                     result=result,
