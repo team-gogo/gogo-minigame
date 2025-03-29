@@ -8,5 +8,12 @@
       <jdbc-url>jdbc:postgresql://localhost:5432/gogo_minigame</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
+    <data-source source="LOCAL" name="postgres@stage" uuid="98a86f3f-1692-4250-a916-4c22cd291f61">
+      <driver-ref>postgresql</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
+      <jdbc-url>jdbc:postgresql://10.0.152.118:5432/gogo-minigame</jdbc-url>
+      <working-dir>$ProjectFileDir$</working-dir>
+    </data-source>
   </component>
 </project>
