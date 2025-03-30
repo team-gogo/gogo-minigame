@@ -3,7 +3,7 @@ import os
 from dotenv import load_dotenv
 
 
-load_dotenv('.dev.env')
+load_dotenv('.env')
 
 
 DB_HOST = os.environ.get('DB_HOST')
