@@ -21,7 +21,7 @@ class EventConsumeController:
     @staticmethod
     async def stage_confirm(data: StageConfirmReq):
         session = await get_session()
-        await MinigameService(session).confirm_minigame(data)
+        await MinigameService(session).confirm_minigame(data.stageId)
 
     @staticmethod
     async def ticket_buy(data: TicketShopBuyReq):
