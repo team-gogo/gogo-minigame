@@ -6,7 +6,7 @@ from sqlmodel import Field, SQLModel
 
 
 class MinigameStatus(Enum):
-    ACTIVE = "ACTIVE"
+    ABLE = "ABLE"
     PENDING = "PENDING"
 
 

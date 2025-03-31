@@ -86,4 +86,4 @@ class MinigameService:
             minigame = await self.minigame_repository.find_by_stage_id(stage_id)
             if minigame is None:
                 raise HTTPException(status_code=404, detail="Minigame not found")
-            minigame.status = MinigameStatus.ACTIVE
+            minigame.status = MinigameStatus.ABLE
