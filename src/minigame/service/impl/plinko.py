@@ -1,6 +1,5 @@
 import json
 import random
-import time
 import uuid
 
 from fastapi import status, HTTPException
@@ -22,9 +21,9 @@ from src.ticket.domain.repository.ticket import TicketRepository
 from src.ticket.service.ticket import TicketService
 
 PLINKO_RISK_VALUE = {
-    'LOW': [16, 9, 2, 1.4, 1.4, 1.2, 1.1, 1, 0.5, 1, 1.1, 1.2, 1.4, 1.4, 2, 9, 16],
-    'MEDIUM': [110, 41, 10, 5, 3, 1.5, 1, 0.5, 0.3, 0.5, 1, 1.5, 3, 5, 10, 41, 110],
-    'HIGH': [1000, 130, 26, 9, 4, 2, 0.2, 0.2, 0.2, 0.2, 0.2, 2, 4, 9, 26, 130, 1000]
+    'LOW': [15, 8, 3, 2, 1.5, 1.1, 1, 0.7, 0.7, 1, 1.1, 1.5, 2, 3, 8, 15],
+    'MEDIUM': [88, 18, 11, 5, 3, 1.3, 0.5, 0.3, 0.3, 0.5, 1.3, 3, 5, 11, 18, 88],
+    'HIGH': [620, 83, 27, 8, 3, 0.5, 0.2, 0.2, 0.2, 0.2, 0.5, 3, 8, 27, 83, 620]
 }
 
 
@@ -83,7 +82,7 @@ class PlinkoMinigameBetServiceImpl(MinigameBetService):
             row = PLINKO_RISK_VALUE[data.risk.value]
             move = 0
             path = []
-            for i in range(16):
+            for i in range(15):
                 step = random.choice([-1, 1])
                 path.append(step)
                 move += step
