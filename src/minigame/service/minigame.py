@@ -47,7 +47,7 @@ class MinigameService:
                     stage_id=data.stageId,
 
                     is_active_coin_toss=data.miniGame.coinToss.isActive,
-                    is_active_plinko_toss=data.miniGame.plinko.isActive,
+                    is_active_plinko=data.miniGame.plinko.isActive,
                     is_active_yavarwee=data.miniGame.yavarwee.isActive,
 
                     coin_toss_default_ticket_amount=data.miniGame.coinToss.initialTicketCount,
