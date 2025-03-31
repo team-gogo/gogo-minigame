@@ -54,6 +54,10 @@ class YavarweeMinigameBetServiceImpl(MinigameBetService):
                 raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail='gogo-stage no response')
             before_point = json.loads(response)['point']
 
+            # 최대 최소 베팅 포인트 검사
+            if bet_amount < minigame.yavarwee_min_betting_point or bet_amount > minigame.yavarwee_max_betting_point:
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='bet amount out of range')
+
             # 포인트 검사
             if bet_amount > before_point:
                 raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='bet amount too high')
