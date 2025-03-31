@@ -46,6 +46,8 @@ class CoinTossMinigameBetServiceImpl(MinigameBetService):
                 raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail='gogo-stage no response')
             student_id = json.loads(user_response)['studentId']
 
+            await BetValidationService.validate_plinko_status(stage_id=stage_id, student_id=student_id)
+
             # 유저 포인트 정보 가져오기
             response = await do_service_async('gogo-stage', f'/stage/api/point/{stage_id}?studentId={student_id}')
             if not response:

@@ -17,4 +17,4 @@ async def minigame_active_game(
         authority: Annotated[str, Depends(authority_student)],
         session: Annotated[AsyncSession, Depends(get_session)]
 ):
-    return await MinigameService(session).get_active_minigame(stage_id)
+    return await MinigameService(session).get_active_minigame(stage_id, request_user_id)

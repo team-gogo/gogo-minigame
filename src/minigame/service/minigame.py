@@ -1,3 +1,6 @@
+import json
+
+from py_eureka_client.eureka_client import do_service_async
 from sqlmodel.ext.asyncio.session import AsyncSession
 from fastapi import HTTPException, status
 
@@ -15,11 +18,25 @@ class MinigameService:
         self.minigame_repository = MinigameRepository(session)
         self.ticket_repository = TicketRepository(session)
 
-    async def get_active_minigame(self, stage_id):
+    async def get_active_minigame(self, stage_id, user_id):
         async with self.session.begin():
             minigame = await self.minigame_repository.find_by_stage_id(stage_id)
             if minigame is None:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Minigame not found")
+
+            # Student id 조회
+            user_response = await do_service_async('gogo-user', f'/user/student?userId={user_id}')
+            if not user_response:
+                raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail='gogo-stage no response')
+            student_id = json.loads(user_response)['studentId']
+
+            # 학생이 스테이지에 참여하는지 검사
+            validate_stage_student_response = await do_service_async('gogo-stage', f'/api/participant/{stage_id}?studentId={student_id}')
+            if not validate_stage_student_response:
+                raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail='gogo-stage no response')
+            if not json.loads(validate_stage_student_response)['isParticipant']:
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Not a participant')
+
             return GetActiveMinigameRes(
                 isPlinkoActive=minigame.is_active_plinko,
                 isCoinTossActive=minigame.is_active_coin_toss,
