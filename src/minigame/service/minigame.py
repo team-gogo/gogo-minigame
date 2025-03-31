@@ -6,7 +6,7 @@ from fastapi import HTTPException, status
 
 from event.schema.fast import CreateStageFast
 from event.schema.official import CreateStageOfficial
-from minigame.service.validation import BetValidationService
+from src.minigame.service.validation import BetValidationService
 from src.minigame.domain.model.minigame import Minigame, MinigameStatus
 from src.minigame.domain.repository.minigame import MinigameRepository
 from src.minigame.presentation.schema.minigame import GetActiveMinigameRes
