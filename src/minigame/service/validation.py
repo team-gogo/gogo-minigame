@@ -32,7 +32,7 @@ class BetValidationService:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Stage is not available')
 
     @staticmethod
-    async def validate_plinko_status(stage_id, student_id):
+    async def is_student_participate_in_stage(stage_id, student_id):
         validate_stage_student_response = await do_service_async('gogo-stage', f'/api/participant/{stage_id}?studentId={student_id}')
         if not validate_stage_student_response:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail='gogo-stage no response')

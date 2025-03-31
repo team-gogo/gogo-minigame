@@ -6,6 +6,7 @@ from fastapi import HTTPException, status
 
 from event.schema.fast import CreateStageFast
 from event.schema.official import CreateStageOfficial
+from minigame.service.validation import BetValidationService
 from src.minigame.domain.model.minigame import Minigame, MinigameStatus
 from src.minigame.domain.repository.minigame import MinigameRepository
 from src.minigame.presentation.schema.minigame import GetActiveMinigameRes
@@ -30,12 +31,7 @@ class MinigameService:
                 raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail='gogo-stage no response')
             student_id = json.loads(user_response)['studentId']
 
-            # 학생이 스테이지에 참여하는지 검사
-            validate_stage_student_response = await do_service_async('gogo-stage', f'/api/participant/{stage_id}?studentId={student_id}')
-            if not validate_stage_student_response:
-                raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail='gogo-stage no response')
-            if not json.loads(validate_stage_student_response)['isParticipant']:
-                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Not a participant')
+            await BetValidationService.is_student_participate_in_stage(stage_id=stage_id, student_id=student_id)
 
             return GetActiveMinigameRes(
                 isPlinkoActive=minigame.is_active_plinko,
