@@ -21,6 +21,7 @@ class TicketRepository:
             select(Ticket)
             .join(Minigame)
             .where(Minigame.stage_id == stage_id, Ticket.student_id == student_id)
+            .with_for_update()
         )
         result = await self.session.exec(statement)
         return result.first()
