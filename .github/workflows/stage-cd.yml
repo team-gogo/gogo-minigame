@@ -23,7 +23,7 @@ jobs:
           script: |
             set -e
             
-            ssh -i gogo-prod-ms.pem -o StrictHostKeyChecking=no ubuntu@${{ secrets.STAGE_TARGET_HOST }} << 'EOF'
+            ssh -i gogo-stage.pem -o StrictHostKeyChecking=no ubuntu@${{ secrets.STAGE_TARGET_HOST }} << 'EOF'
             
             mkdir -p /home/ubuntu/gogo-minigame
             cd /home/ubuntu/gogo-minigame
@@ -40,6 +40,8 @@ jobs:
             docker rm gogo-minigame-stage || true
             
             docker run -d -p 8086:8086 --add-host host.docker.internal:host-gateway --name gogo-minigame-stage gogo-minigame-stage
+
+            EOF
 
       - name: SSH Success Notification
         if: success()
