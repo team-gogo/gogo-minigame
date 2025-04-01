@@ -8,7 +8,7 @@ from starlette.concurrency import iterate_in_threadpool
 from starlette.middleware.base import BaseHTTPMiddleware
 
 logger = logging.getLogger('GOGO-MiniGame Logger')
-no_logging_path = ['/minigame/health', '/favicon.ico']
+no_logging_path = ['/minigame/health', '/favicon.ico', '/actuator/prometheus']
 
 
 class LoggingMiddleware(BaseHTTPMiddleware):
