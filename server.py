@@ -4,6 +4,7 @@ from contextlib import asynccontextmanager
 
 import uvicorn
 from fastapi import FastAPI
+from prometheus_fastapi_instrumentator import Instrumentator
 
 from db import create_db
 from eureka import init_eureka
@@ -23,6 +24,8 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
+Instrumentator().instrument(app).expose(app, endpoint='/actuator/prometheus')
+
 logging.basicConfig(level=logging.INFO)
 
 app.add_middleware(LoggingMiddleware)
@@ -36,8 +39,6 @@ app.include_router(minigame_router)
 @app.get('/minigame/health')
 async def root():
     return 'GOGO Minigame Service OK'
-
-
 
 
 if __name__ == '__main__':
