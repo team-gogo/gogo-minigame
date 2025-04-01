@@ -3,7 +3,7 @@ name: GOGO-MiniGame Prod CD
 on:
   push:
     branches:
-      - master
+      - develop
 
 jobs:
   deploy:
