@@ -1,0 +1,60 @@
+name: GOGO-MiniGame Stage CD
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Deploy
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.STAGE_SSH_HOST }}
+          port: ${{ secrets.STAGE_SSH_PORT }}
+          username: ${{ secrets.STAGE_SSH_USERNAME }}
+          password: ${{ secrets.STAGE_SSH_PASSWORD }}
+          script: |
+            set -e
+
+            mkdir -p /home/ubuntu/gogo-minigame
+            cd /home/ubuntu/gogo-minigame
+            
+            if [ ! -d ".git" ]; then
+              git clone -b develop https://github.com/team-gogo/gogo-minigame .
+            else
+              git pull origin develop
+            fi
+            
+            docker build . -t gogo-minigame-stage
+            
+            docker stop gogo-minigame-stage || true
+            docker rm gogo-minigame-stage || true
+            
+            docker run -d -p 8086:8086 --add-host host.docker.internal:host-gateway --name gogo-minigame-stage gogo-minigame-stage
+
+            EOF
+
+      - name: SSH Success Notification
+        if: success()
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
+          color: 0x4CAF50
+          title: "STAGE 배포 성공"
+          message: "GOGO Minigame stage deployment completed successfully."
+
+      - name: SSH Failure Notification
+        if: failure()
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
+          color: 0xFF4C4C
+          title: "STAGE 배포 실패"
+          message: "GOGO Minigame stage deployment failed. Check the logs for details."
