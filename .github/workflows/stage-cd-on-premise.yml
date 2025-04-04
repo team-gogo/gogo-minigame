@@ -39,8 +39,6 @@ jobs:
             
             docker run -d -p 8086:8086 --add-host host.docker.internal:host-gateway --name gogo-minigame-stage gogo-minigame-stage
 
-            EOF
-
       - name: SSH Success Notification
         if: success()
         uses: sarisia/actions-status-discord@v1
