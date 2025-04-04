@@ -11,7 +11,7 @@ WORKDIR /gogo-minigame
 COPY . /gogo-minigame
 
 RUN pip install --upgrade pip
-RUN pip install poetry
+RUN pip install --default-timeout=100 poetry
 
 RUN poetry install --no-root
 
