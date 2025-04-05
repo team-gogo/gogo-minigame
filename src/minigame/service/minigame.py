@@ -87,3 +87,7 @@ class MinigameService:
             if minigame is None:
                 raise HTTPException(status_code=404, detail="Minigame not found")
             minigame.status = MinigameStatus.ABLE
+
+
+    async def bet_limit(self, stage_id):
+        pass
