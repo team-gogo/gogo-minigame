@@ -21,7 +21,7 @@ async def minigame_active_game(
 
 
 @router.get('/minigame/bet-limit/{stage_id}')
-async def minigame_active_game(
+async def minigame_bet_limit(
         stage_id: int,
         request_user_id: Annotated[int, Header()],
         authority: Annotated[str, Depends(authority_student)],
