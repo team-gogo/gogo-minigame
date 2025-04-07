@@ -22,4 +22,4 @@ INSTANCE_PORT = int(os.environ.get('INSTANCE_PORT'))
 KAFKA_HOST = os.environ.get('KAFKA_HOST')
 KAFKA_PORT = os.environ.get('KAFKA_PORT')
 
-YAVARWEE_SECRET = os.environ.get('YAVARWEE_SECRET')
+YAVARWEE_PRIVATE_KEY = os.environ.get('YAVARWEE_PRIVATE_KEY')
