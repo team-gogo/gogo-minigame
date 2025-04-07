@@ -1,7 +1,8 @@
+from enum import Enum
 from pydantic import BaseModel
 
 
-class CoinTossBetType(BaseModel):
+class CoinTossBetType(Enum):
     FRONT = 'FRONT'
     BACK = 'BACK'
 
