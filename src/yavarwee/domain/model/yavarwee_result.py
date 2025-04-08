@@ -17,5 +17,6 @@ class YavarweeResult(SQLModel, table=True):
     point: int = Field(sa_column=Column(BigInteger()))
     uuid: str = Field(unique=True)
     status: MinigameBetStatus
+    bet_confirmed: bool = False
 
     __tablename__ = 'tbl_yavarwee_result'
