@@ -2,16 +2,19 @@ from pydantic import BaseModel
 from pydantic import UUID4
 
 
-class YavarweeBetDetail(BaseModel):
-    uuid: UUID4
+class YavarweeBetReq(BaseModel):
     amount: int
+
+
+class YavarweeBetRes(BaseModel):
+    uuid: str
+
+
+class YavarweeBetConfirmDetail(BaseModel):
+    uuid: UUID4
     round: int
     status: bool
 
 
-class YavarweeBetReq(BaseModel):
+class YavarweeBetConfirmReq(BaseModel):
     data: str
-
-
-class YavarweeBetRes(BaseModel):
-    amount: int
