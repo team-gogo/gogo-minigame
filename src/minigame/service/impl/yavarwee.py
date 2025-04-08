@@ -87,14 +87,19 @@ class YavarweeMinigameBetServiceImpl(MinigameBetService):
 
             # 티켓 감소
             ticket.plinko_ticket_amount -= 1
+            if json_load_data.status:
+                earned_point = int(bet_amount * YAVARWEE_ROUND_VALUE[json_load_data.round - 1] - bet_amount)
+                losted_point = 0
+            else:
+                earned_point = 0
+                losted_point = bet_amount
 
-            earned_point = int(bet_amount * YAVARWEE_ROUND_VALUE[json_load_data.round - 1] - bet_amount)
 
             await EventPublisher.minigame_bet_completed(
                 uuid_=str(json_load_data.uuid),
                 earned_point=earned_point,
-                losted_point=0,
-                is_win=True,
+                losted_point=losted_point,
+                is_win=json_load_data.status,
                 student_id=student_id,
                 stage_id=stage_id,
                 game_type=GameType.YAVARWEE.value
@@ -106,7 +111,7 @@ class YavarweeMinigameBetServiceImpl(MinigameBetService):
                     student_id=int(student_id),
                     bet_point=bet_amount,
                     yavarwee_stage=json_load_data.round,
-                    point=earned_point,
+                    point=earned_point - losted_point,
                     uuid=str(json_load_data.uuid),
                     status=MinigameBetStatus.CONFIRMED
                 )
