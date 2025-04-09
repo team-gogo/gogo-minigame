@@ -9,6 +9,8 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from Crypto.Cipher import PKCS1_OAEP
 
 from db import get_session
+from event.publisher import EventPublisher
+from src.minigame.presentation.schema.event import GameType
 from src.minigame.domain.model.minigame import MinigameBetStatus
 from src.minigame.service.validation import BetValidationService
 from src.minigame.service.bet import MinigameBetService
@@ -72,7 +74,7 @@ class YavarweeMinigameBetServiceImpl(MinigameBetService):
             ticket = await self.ticket_repository.find_ticket_amount_by_stage_id_and_student_id(stage_id=stage_id, student_id=student_id)
 
             # 티켓 감소
-            ticket.plinko_ticket_amount -= 1
+            ticket.yavarwee_ticket_amount -= 1
             uuid_ = uuid.uuid4()
 
             await self.yavarwee_repository.save(
@@ -112,13 +114,30 @@ class YavarweeMinigameBetServiceImpl(MinigameBetService):
 
             bet_amount = minigame.bet_point
 
-            earned_point = int(bet_amount * YAVARWEE_ROUND_VALUE[json_load_data.round - 1] - bet_amount)
+            earned_point = int(bet_amount * YAVARWEE_ROUND_VALUE[json_load_data.round - 1])
+            losted_point = json_load_data.bet_amount
 
             minigame.bet_confirmed = True
-            minigame.point = minigame.point + earned_point
+            minigame.point = earned_point - losted_point
             minigame.yavarwee_stage = json_load_data.round
 
             await self.session.flush()
+
+            # Student id 조회
+            user_response = await do_service_async('gogo-user', f'/user/student?userId={user_id}')
+            if not user_response:
+                raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail='gogo-stage no response')
+            student_id = json.loads(user_response)['studentId']
+
+            await EventPublisher.minigame_bet_completed(
+                uuid_=data.uuid,
+                earned_point=earned_point,
+                losted_point=losted_point,
+                is_win=json_load_data.status,
+                student_id=student_id,
+                stage_id=stage_id,
+                game_type=GameType.YAVARWEE.value
+            )
 
             return YavarweeBetReq(
                 amount=minigame.point
