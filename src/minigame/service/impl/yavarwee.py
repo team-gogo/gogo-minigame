@@ -130,7 +130,7 @@ class YavarweeMinigameBetServiceImpl(MinigameBetService):
             student_id = json.loads(user_response)['studentId']
 
             await EventPublisher.minigame_bet_completed(
-                uuid_=data.uuid,
+                uuid_=minigame.uuid,
                 earned_point=earned_point,
                 losted_point=losted_point,
                 is_win=json_load_data.status,
