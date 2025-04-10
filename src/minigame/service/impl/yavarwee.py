@@ -90,6 +90,16 @@ class YavarweeMinigameBetServiceImpl(MinigameBetService):
                 )
             )
 
+            await EventPublisher.minigame_bet_completed(
+                uuid_=minigame.uuid,
+                earned_point=0,
+                losted_point=bet_amount,
+                is_win=False,
+                student_id=student_id,
+                stage_id=stage_id,
+                game_type=GameType.YAVARWEE.value
+            )
+
             return YavarweeBetRes(
                 uuid=str(uuid_)
             )
@@ -112,11 +122,27 @@ class YavarweeMinigameBetServiceImpl(MinigameBetService):
             if minigame.bet_confirmed:
                 raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='bet already confirmed')
 
+            # Student id 조회
+            user_response = await do_service_async('gogo-user', f'/user/student?userId={user_id}')
+            if not user_response:
+                raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail='gogo-stage no response')
+            student_id = json.loads(user_response)['studentId']
+
             bet_amount = minigame.bet_point
 
             if json_load_data.status:
                 earned_point = int(bet_amount * YAVARWEE_ROUND_VALUE[json_load_data.round - 1])
                 losted_point = bet_amount
+
+                await EventPublisher.minigame_bet_completed(
+                    uuid_=minigame.uuid,
+                    earned_point=earned_point,
+                    losted_point=0,
+                    is_win=True,
+                    student_id=student_id,
+                    stage_id=stage_id,
+                    game_type=GameType.YAVARWEE.value
+                )
             else:
                 earned_point = 0
                 losted_point = bet_amount
@@ -124,24 +150,6 @@ class YavarweeMinigameBetServiceImpl(MinigameBetService):
             minigame.bet_confirmed = True
             minigame.point = earned_point - losted_point
             minigame.yavarwee_stage = json_load_data.round
-
-            await self.session.flush()
-
-            # Student id 조회
-            user_response = await do_service_async('gogo-user', f'/user/student?userId={user_id}')
-            if not user_response:
-                raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail='gogo-stage no response')
-            student_id = json.loads(user_response)['studentId']
-
-            await EventPublisher.minigame_bet_completed(
-                uuid_=minigame.uuid,
-                earned_point=earned_point,
-                losted_point=losted_point,
-                is_win=json_load_data.status,
-                student_id=student_id,
-                stage_id=stage_id,
-                game_type=GameType.YAVARWEE.value
-            )
 
             return YavarweeBetReq(
                 amount=minigame.point
