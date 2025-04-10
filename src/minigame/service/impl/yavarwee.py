@@ -91,7 +91,7 @@ class YavarweeMinigameBetServiceImpl(MinigameBetService):
             )
 
             await EventPublisher.minigame_bet_completed(
-                uuid_=minigame.uuid,
+                uuid_=str(uuid_),
                 earned_point=0,
                 losted_point=bet_amount,
                 is_win=False,
