@@ -114,8 +114,12 @@ class YavarweeMinigameBetServiceImpl(MinigameBetService):
 
             bet_amount = minigame.bet_point
 
-            earned_point = int(bet_amount * YAVARWEE_ROUND_VALUE[json_load_data.round - 1])
-            losted_point = bet_amount
+            if json_load_data.status:
+                earned_point = int(bet_amount * YAVARWEE_ROUND_VALUE[json_load_data.round - 1])
+                losted_point = bet_amount
+            else:
+                earned_point = 0
+                losted_point = bet_amount
 
             minigame.bet_confirmed = True
             minigame.point = earned_point - losted_point
