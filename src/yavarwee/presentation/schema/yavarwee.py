@@ -3,11 +3,18 @@ from pydantic import UUID4
 
 
 class YavarweeBetReq(BaseModel):
-    proof: str
-    uuid: UUID4
     amount: int
-    round: int
 
 
 class YavarweeBetRes(BaseModel):
-    amount: int
+    uuid: str
+
+
+class YavarweeBetConfirmDetail(BaseModel):
+    uuid: UUID4
+    round: int
+    status: bool
+
+
+class YavarweeBetConfirmReq(BaseModel):
+    data: str

@@ -19,6 +19,7 @@ pytest = "^8.3.5"
 aiomysql = "^0.2.0"
 cryptography = "^44.0.2"
 prometheus-fastapi-instrumentator = "^7.1.0"
+pycryptodome = "^3.22.0"
 
 
 [build-system]
