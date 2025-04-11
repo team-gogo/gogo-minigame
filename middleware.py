@@ -1,13 +1,12 @@
 import json
 import uuid
 import time
-import logging
 
-from fastapi import Request, Response
+from fastapi import Request
 from starlette.concurrency import iterate_in_threadpool
 from starlette.middleware.base import BaseHTTPMiddleware
 
-logger = logging.getLogger('GOGO-MiniGame Logger')
+
 no_logging_path = ['/minigame/health', '/favicon.ico', '/actuator/prometheus']
 
 
@@ -24,6 +23,8 @@ class LoggingMiddleware(BaseHTTPMiddleware):
             request_body_str = json.dumps(json.loads(request_body.decode('utf-8')), separators=(',', ':'))
         except json.decoder.JSONDecodeError:
             request_body_str = ''
+
+        from server import logger
 
         logger.info(
             f"Log-ID: {log_id}, "
