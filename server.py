@@ -4,11 +4,11 @@ from contextlib import asynccontextmanager
 
 import uvicorn
 from fastapi import FastAPI
-from prometheus_fastapi_instrumentator import Instrumentator
 
 from db import create_db
 from eureka import init_eureka
 from event.consumer import consume
+from loki import loki_handler
 from middleware import LoggingMiddleware
 from src.cointoss.presentation.controller.cointoss import router as coin_toss_router
 from src.plinko.presentation.controller.plinko import router as plinko_router
@@ -24,9 +24,9 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-Instrumentator().instrument(app).expose(app, endpoint='/actuator/prometheus')
-
-logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger('GOGO-MiniGame Logger')
+logger.setLevel(logging.INFO)
+logger.addHandler(loki_handler)
 
 app.add_middleware(LoggingMiddleware)
 
