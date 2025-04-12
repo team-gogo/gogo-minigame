@@ -26,7 +26,7 @@ app = FastAPI(lifespan=lifespan)
 
 logger = logging.getLogger('GOGO-MiniGame Logger')
 logger.setLevel(logging.INFO)
-logger.addHandler(loki_handler)
+# logger.addHandler(loki_handler)
 
 app.add_middleware(LoggingMiddleware)
 
