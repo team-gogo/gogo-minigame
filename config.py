@@ -23,3 +23,5 @@ KAFKA_HOST = os.environ.get('KAFKA_HOST')
 KAFKA_PORT = os.environ.get('KAFKA_PORT')
 
 YAVARWEE_PRIVATE_KEY = os.environ.get('YAVARWEE_PRIVATE_KEY')
+
+LOKI_ENDPOINT = os.environ.get('LOKI_ENDPOINT')
