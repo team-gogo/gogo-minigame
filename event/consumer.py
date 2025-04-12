@@ -1,11 +1,11 @@
 import asyncio
 import json
-import logging
 
 from aiokafka import AIOKafkaConsumer
 
 from config import KAFKA_HOST, KAFKA_PORT
 from event.topic import event_topic
+from server import logger
 
 
 async def consume():
@@ -21,13 +21,13 @@ async def consume():
             try:
                 async for msg in consumer:
                     data = json.loads(msg.value.decode('utf-8'))
-                    logging.info(f'Consume kafka data {msg.topic} value: {data}')
+                    logger.info(f'Consume kafka data {msg.topic} value: {data}')
 
                     class_, schema_ = event_topic[msg.topic]
                     await class_(schema_(**data))
             except Exception as e:
-                logging.exception(f'Kafka consume exception {str(e)}')
+                logger.exception(f'Kafka consume exception {str(e)}')
 
         except Exception as e:
-            logging.exception(f'Kafka consumer is stop error {str(e)}')
+            logger.exception(f'Kafka consumer is stop error {str(e)}')
             await asyncio.sleep(5)

@@ -1,11 +1,11 @@
 import json
-import logging
 from typing import Optional
 
 from aiokafka import AIOKafkaProducer
 from pydantic import BaseModel
 
 from config import KAFKA_HOST, KAFKA_PORT
+from server import logger
 
 
 class EventProducer:
@@ -16,7 +16,7 @@ class EventProducer:
         if not EventProducer.producer:
             EventProducer.producer = AIOKafkaProducer(bootstrap_servers=f'{KAFKA_HOST}:{KAFKA_PORT}')
             await EventProducer.producer.start()
-            logging.info(f'Producer is started.')
+            logger.info(f'Producer is started.')
         return EventProducer.producer
 
     @staticmethod
@@ -27,6 +27,4 @@ class EventProducer:
             topic=topic,
             value=json.dumps(value.dict()).encode('utf-8'),
         )
-        logging.info(f'Kafka producer Send {topic} value: {value}')
-
-
+        logger.info(f'Kafka producer Send {topic} value: {value}')
