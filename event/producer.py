@@ -5,7 +5,6 @@ from aiokafka import AIOKafkaProducer
 from pydantic import BaseModel
 
 from config import KAFKA_HOST, KAFKA_PORT
-from server import logger
 
 
 class EventProducer:
@@ -16,6 +15,7 @@ class EventProducer:
         if not EventProducer.producer:
             EventProducer.producer = AIOKafkaProducer(bootstrap_servers=f'{KAFKA_HOST}:{KAFKA_PORT}')
             await EventProducer.producer.start()
+            from server import logger
             logger.info(f'Producer is started.')
         return EventProducer.producer
 
@@ -27,4 +27,5 @@ class EventProducer:
             topic=topic,
             value=json.dumps(value.dict()).encode('utf-8'),
         )
+        from server import logger
         logger.info(f'Kafka producer Send {topic} value: {value}')
