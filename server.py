@@ -7,7 +7,6 @@ from fastapi import FastAPI
 
 from db import create_db
 from eureka import init_eureka
-from event.consumer import consume
 from loki import loki_handler
 from middleware import LoggingMiddleware
 from src.cointoss.presentation.controller.cointoss import router as coin_toss_router
@@ -19,6 +18,7 @@ from src.minigame.presentation.controller.minigame import router as minigame_rou
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    from event.consumer import consume
     asyncio.create_task(consume())  # 비동기 태스크 실행
     yield
 
@@ -26,7 +26,7 @@ app = FastAPI(lifespan=lifespan)
 
 logger = logging.getLogger('GOGO-MiniGame Logger')
 logger.setLevel(logging.INFO)
-logger.addHandler(loki_handler)
+# logger.addHandler(loki_handler)
 
 app.add_middleware(LoggingMiddleware)
 
