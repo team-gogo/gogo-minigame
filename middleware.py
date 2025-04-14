@@ -34,6 +34,7 @@ class LoggingMiddleware(BaseHTTPMiddleware):
             f"Params: {json.dumps(dict(request.query_params), separators=(',', ':'))}, "
             f"Content-Type: {request.headers.get('content-type')}, "
             f"User-Agent: {request.headers.get('user-agent')}, "
+            f"Request-Headers: {json.dumps(dict(request.headers), separators=(',', ':'))}, "
             f"Request-Body: {request_body_str}"
         )
 
@@ -49,6 +50,7 @@ class LoggingMiddleware(BaseHTTPMiddleware):
             f"Status-Code: {response.status_code}, "
             f"Content-Type: {response.headers.get('content-type')}, "
             f"Response Time: {process_time}ms, "
+            f"Response-Headers: {json.dumps(dict(request.headers), separators=(',', ':'))}, "
             f"Response-Body: {json.dumps(json.loads(response_body_str), separators=(',', ':'))}"
         )
 

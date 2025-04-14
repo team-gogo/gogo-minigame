@@ -94,12 +94,12 @@ class MinigameService:
         async with self.session.begin():
 
             # Student id 조회
-            user_response = await do_service_async('gogo-user', f'/user/student?userId={user_id}')
-            if not user_response:
-                raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail='gogo-stage no response')
-            student_id = json.loads(user_response)['studentId']
+            # user_response = await do_service_async('gogo-user', f'/user/student?userId={user_id}')
+            # if not user_response:
+            #     raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail='gogo-stage no response')
+            # student_id = json.loads(user_response)['studentId']
 
-            await BetValidationService.is_student_participate_in_stage(stage_id=stage_id, student_id=student_id)
+            # await BetValidationService.is_student_participate_in_stage(stage_id=stage_id, student_id=student_id)
 
             minigame = await self.minigame_repository.find_by_stage_id(stage_id)
             if minigame is None:
