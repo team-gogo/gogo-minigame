@@ -26,6 +26,8 @@ class MinigameService:
             if minigame is None:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Minigame not found")
 
+            await BetValidationService.validate_minigame_status(minigame)
+
             # Student id 조회
             user_response = await do_service_async('gogo-user', f'/user/student?userId={user_id}')
             if not user_response:
