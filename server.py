@@ -1,13 +1,12 @@
 import asyncio
 import logging
-from contextlib import asynccontextmanager
+from contextlib import asynccontextmanager, suppress
 
 import uvicorn
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
+from sqlalchemy import text
 
-from db import create_db
-from eureka import init_eureka
-from loki import loki_handler
+from db import async_engine, create_db
 from middleware import LoggingMiddleware
 from src.cointoss.presentation.controller.cointoss import router as coin_toss_router
 from src.plinko.presentation.controller.plinko import router as plinko_router
@@ -19,14 +18,23 @@ from src.minigame.presentation.controller.minigame import router as minigame_rou
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     from event.consumer import consume
-    asyncio.create_task(consume())  # 비동기 태스크 실행
-    yield
+    try:
+        await create_db()
+        app.state.kafka_ready = asyncio.Event()
+        consumer_task = asyncio.create_task(consume(app.state.kafka_ready))
+        try:
+            yield
+        finally:
+            consumer_task.cancel()
+            with suppress(asyncio.CancelledError):
+                await consumer_task
+    finally:
+        await async_engine.dispose()
 
 app = FastAPI(lifespan=lifespan)
 
 logger = logging.getLogger('GOGO-MiniGame Logger')
 logger.setLevel(logging.INFO)
-# logger.addHandler(loki_handler)
 
 app.add_middleware(LoggingMiddleware)
 
@@ -41,13 +49,17 @@ async def root():
     return 'GOGO Minigame Service OK'
 
 
-if __name__ == '__main__':
+@app.get('/minigame/health/readiness')
+async def readiness():
+    if not app.state.kafka_ready.is_set():
+        raise HTTPException(status_code=503, detail='Kafka is not ready')
     try:
-        init_eureka()
-        logging.info('init eureka')
-        asyncio.run(create_db())
-        logging.info('create db')
-        uvicorn.run(app, host='0.0.0.0', port=8086, log_level='info', access_log=False)
-    except Exception as e:
-        print(e)
-        exit(1)
+        async with async_engine.connect() as connection:
+            await connection.execute(text('SELECT 1'))
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail='Database is not ready') from exc
+    return {'status': 'UP'}
+
+
+if __name__ == '__main__':
+    uvicorn.run(app, host='0.0.0.0', port=8086, log_level='info', access_log=False)

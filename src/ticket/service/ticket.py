@@ -1,7 +1,7 @@
 import json
 
 from fastapi import HTTPException, status
-from py_eureka_client.eureka_client import do_service_async
+from service_client import get_service_text
 from pydantic import BaseModel
 from sqlmodel.ext.asyncio.session import AsyncSession
 
@@ -31,7 +31,7 @@ class TicketService:
 
     async def get_ticket_amount(self, user_id, stage_id):
         async with self.session.begin():
-            response = await do_service_async('gogo-user', f'/user/student?userId={user_id}')
+            response = await get_service_text('gogo-user', f'/user/student?userId={user_id}')
             if not response:
                 raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail='gogo-stage no response')
             student_id = json.loads(response)['studentId']

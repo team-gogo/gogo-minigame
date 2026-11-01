@@ -3,7 +3,7 @@ import random
 import uuid
 
 from fastapi import status, HTTPException
-from py_eureka_client.eureka_client import do_service_async
+from service_client import get_service_text
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from db import get_session
@@ -47,7 +47,7 @@ class PlinkoMinigameBetServiceImpl(MinigameBetService):
             await BetValidationService.validate_minigame_status(minigame)
 
             # Student id 조회
-            user_response = await do_service_async('gogo-user', f'/user/student?userId={user_id}')
+            user_response = await get_service_text('gogo-user', f'/user/student?userId={user_id}')
             if not user_response:
                 raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail='gogo-stage no response')
             student_id = json.loads(user_response)['studentId']
@@ -55,7 +55,7 @@ class PlinkoMinigameBetServiceImpl(MinigameBetService):
             await BetValidationService.is_student_participate_in_stage(stage_id=stage_id, student_id=student_id)
 
             # 유저 포인트 정보 가져오기
-            response = await do_service_async('gogo-stage', f'/stage/api/point/{stage_id}?studentId={student_id}')
+            response = await get_service_text('gogo-stage', f'/stage/api/point/{stage_id}?studentId={student_id}')
             if not response:
                 raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail='gogo-stage no response')
             before_point = json.loads(response)['point']
